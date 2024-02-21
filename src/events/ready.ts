@@ -42,15 +42,6 @@ const statuses: {
     }
 ];
 
-/*const statuses = [
-    "I am on a sea food diet, I see food and then I eat it",
-    "I love fossil fuels. My dream is to work on an oil rig so that I can drink oil whenever I want",
-    "Accelerate your entire PC experience with the fast, powerful NVIDIA® GeForce® GT 1030 graphics card",
-    "They say nothing is impossible, but I do nothing every day",
-    "Where did you get such a long bacon? Long bacon store",
-    "Eating hot chip and lying",
-];*/
-
 const ready: Event = {
     name: Events.ClientReady,
     once: true,
