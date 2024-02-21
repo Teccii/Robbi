@@ -114,7 +114,7 @@ const messageCreate: Event = {
         if (message.reference) {
             const repliedMessage = await message.fetchReference();
 
-            if (repliedMessage.guild && repliedMessage.author.id != message.author.id && !client.cooldownHandler.has(`${repliedMessage.author.id}-replyXP`)) {
+            if (!repliedMessage.author.bot && repliedMessage.guild && repliedMessage.author.id != message.author.id && !client.cooldownHandler.has(`${repliedMessage.author.id}-replyXP`)) {
                 const replyMin = message.settings.leveling.replyMin;
                 const replyMax = message.settings.leveling.replyMax;
                 const replyXp = Math.floor(replyMin + Math.random() * (replyMax - replyMin));
