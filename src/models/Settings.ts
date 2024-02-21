@@ -25,6 +25,11 @@ export interface ISettings extends Document {
         replyMax: number;
         replyCooldown: number;
     };
+    staffRoles: {
+        helper: string;
+        moderator: string;
+        admin: string;
+    };
     rules: {
         title: string;
         description: string;
@@ -65,6 +70,11 @@ const settingsSchema = new Schema<ISettings>(
             replyMin: { type: Number, default: 5 },
             replyMax: { type: Number, default: 25 },
             replyCooldown: { type: Number, default: 45 },
+        },
+        staffRoles: {
+            helper: String,
+            moderator: String,
+            admin: String,
         },
         rules: [{
             title: String,

@@ -57,6 +57,13 @@ const ban: InteractionCommand = {
             };
         }
 
+        if (client.permLevel(interaction.member) <= client.permLevel(member)) {
+            return {
+                error: "Cannot moderate user with similar or higher authority",
+                ephemeral: true
+            }
+        }
+
         const duration = interaction.options.getString("length", false) ?? "permanent";
         const reason = interaction.options.getString("reason", false) ?? "No reason provided";
         const caseNumber = await client.nextCounter(`${interaction.guild.id}-caseNumber`);

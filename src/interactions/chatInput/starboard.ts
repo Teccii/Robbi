@@ -73,8 +73,16 @@ const starboard: InteractionCommand = {
         if (!(interaction instanceof ChatInputCommandInteraction)) {
             return { error: "Invalid Interaction Type" };
         }
-
+        
+        const permLevel = client.permLevel(interaction.member);
         const subcmd = interaction.options.getSubcommand();
+        
+        const adminOnly = ["add", "remove"];
+        const staffOnly = ["list"];
+
+        if ((permLevel < 3 && adminOnly.includes(subcmd)) || (permLevel < 1 && staffOnly.includes(subcmd))) {
+			return { error: "Insufficient permissions", ephemeral: true };
+		}
 
         if (subcmd == "add") {
             const id = interaction.options.getString("id", true);

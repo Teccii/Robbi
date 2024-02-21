@@ -43,6 +43,13 @@ const warn: InteractionCommand = {
             };
         }
 
+        if (client.permLevel(interaction.member) <= client.permLevel(member)) {
+            return {
+                error: "Cannot moderate user with similar or higher authority",
+                ephemeral: true
+            }
+        }
+
         const reason = interaction.options.getString("reason", true);
         const caseNumber = await client.nextCounter(`${interaction.guild.id}-caseNumber`);
 

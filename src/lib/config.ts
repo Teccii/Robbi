@@ -1,4 +1,4 @@
-import { ColorResolvable } from "discord.js";
+import { ColorResolvable, GuildMember } from "discord.js";
 
 export default interface ClientConfig {
     ownerId: string;
@@ -7,7 +7,12 @@ export default interface ClientConfig {
         success: ColorResolvable,
         warning: ColorResolvable,
         error: ColorResolvable,
-    }
+    };
+    permLevels: {
+        name: string;
+        level: number;
+        check: (member: GuildMember | undefined | null) => boolean;
+    }[];
 }
 
 export enum EmbedColor {

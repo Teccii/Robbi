@@ -69,7 +69,7 @@ const xp: InteractionCommand = {
                 .addBooleanOption(option =>
                     option
                         .setRequired(false)
-                        .setName("remove-other-roles")
+                        .setName("remove-past-roles")
                         .setDescription("Whether to remove past rewards or not.")
                 )
                 .addStringOption(option =>
@@ -387,7 +387,7 @@ const xp: InteractionCommand = {
                 };
             }
         } else if (subcmd == "settings") {
-            const removeOtherRoles = interaction.options.getBoolean("remove-other-roles", false);
+            const removePastRoles = interaction.options.getBoolean("remove-past-roles", false);
             const announcements = interaction.options.getString("announcements", false);
             const messageMin = interaction.options.getInteger("message-xp-min", false);
             const messageMax = interaction.options.getInteger("message-xp-max", false);
@@ -396,12 +396,12 @@ const xp: InteractionCommand = {
             const replyMax = interaction.options.getInteger("reply-xp-max", false);
             const replyCooldown = interaction.options.getInteger("replyCooldown", false);
 
-            if (removeOtherRoles != null) {
+            if (removePastRoles != null) {
                 client.settings.set(
                     interaction.guild.id,
                     await SettingsModel.findOneAndUpdate(
                         { _id: interaction.guild.id },
-                        { "leveling.removeOtherRoles": removeOtherRoles, toUpdate: true },
+                        { "leveling.removePastRoles": removePastRoles, toUpdate: true },
                         { upsert: true, setDefaultsOnInsert: true, new: true }
                     )
                 );
