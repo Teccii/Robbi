@@ -1,4 +1,4 @@
-import { Events, GuildChannel, OverwriteType } from "discord.js";
+import { ChannelType, EmbedBuilder, Events, GuildChannel, OverwriteType } from "discord.js";
 import { SettingsModel } from "models/Settings";
 import { EmbedColor } from "lib/config";
 import { log } from "lib/log";
@@ -118,11 +118,21 @@ const channelUpdate: Event = {
                     }
                 }
 
-                let embed = client.simpleEmbed({
-                    title: `Channel "${oldChannel.name}" updated`,
-                    footer: `Channel ID: ${newChannel.id} · ${dayjs().format("DD/MM/YYYY HH:mm")}`,
-                    color: EmbedColor.Neutral,
-                });
+                let embed: EmbedBuilder;
+
+                if (newChannel.type == ChannelType.GuildCategory) {
+                    embed = client.simpleEmbed({
+                        title: `Category "${oldChannel.name}" updated`,
+                        footer: `Category ID: ${newChannel.id} · ${dayjs().format("DD/MM/YYYY HH:mm")}`,
+                        color: EmbedColor.Neutral,
+                    });
+                } else {
+                    embed = client.simpleEmbed({
+                        title: `Channel "${oldChannel.name}" updated`,
+                        footer: `Channel ID: ${newChannel.id} · ${dayjs().format("DD/MM/YYYY HH:mm")}`,
+                        color: EmbedColor.Neutral,
+                    });
+                }
 
                 if (differences.length != 0) {
                     embed = embed.addFields(

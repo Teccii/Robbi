@@ -496,15 +496,15 @@ const xp: InteractionCommand = {
     },
     help: {
         subcommands: [
-            "rewards/add",
-            "rewards/remove",
-            "rewards/get",
-            "rewards/list",
-            "reset/user",
-            "reset/role",
+            "rewards add",
+            "rewards remove",
+            "rewards get",
+            "rewards list",
+            "reset user",
+            "reset role",
             "settings",
-            "set/level",
-            "set/xp",
+            "set level",
+            "set xp",
         ],
         description,
         category: "Management"

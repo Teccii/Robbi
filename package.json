@@ -13,11 +13,13 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@types/lodash": "^4.14.202",
     "colors": "^1.4.0",
     "dayjs": "^1.11.7",
     "discord.js": "^14.14.1",
     "dotenv": "^16.0.2",
     "emoji-regex": "^10.3.0",
+    "lodash": "^4.17.21",
     "mongoose": "^5.11.7",
     "path": "^0.12.7"
   },

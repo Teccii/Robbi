@@ -46,7 +46,7 @@ const help: InteractionCommand = {
 
                 return { embeds: [embed] };
             } else {
-                return { error: `No command with the name \`${cmd}\` exists` }
+                return { error: `No command with the name \`${_cmd}\` exists` }
             }
         } else {
             const cmds: Map<string, string[]> = new Map();

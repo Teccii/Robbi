@@ -1,13 +1,55 @@
-import { SettingsModel } from "models/Settings";
+import { ActivityType, Events, GuildBasedChannel } from "discord.js";
 import { CaseModel, CaseType } from "models/Case";
-import { Events, GuildBasedChannel } from "discord.js";
+import { SettingsModel } from "models/Settings";
+import { PollModel } from "models/Poll";
 import { EmbedColor } from "lib/config";
 import { info, log } from "lib/log";
+import { endPoll } from "lib/poll";
 import Event from "lib/event";
 import colors from "colors";
 import dayjs from "dayjs";
-import { PollModel } from "models/Poll";
-import { endPoll } from "lib/poll";
+import _ from "lodash";
+
+const statuses: {
+    name: string,
+    state?: string,
+    type: ActivityType,
+}[] = [
+    {
+        name: "customstatus",
+        state: "Accelerate your entire PC experience with the fast, powerful NVIDIA® GeForce® GT 1030 graphics card",
+        type: ActivityType.Custom
+    },
+    {
+        name: "customstatus",
+        state: "I love fossil fuels. My dream is to work on an oil rig so that I can drink oil whenever I want",
+        type: ActivityType.Custom
+    },
+    {
+        name: "customstatus",
+        state: "Yeah I'd like to solve the puzzle \"alright go ahead\" MREOWWW",
+        type: ActivityType.Custom
+    },
+    {
+        name: "customstatus",
+        state: "Me waking up after telling the nice doctor the truth",
+        type: ActivityType.Custom
+    },
+    {
+        name: "customstatus",
+        state: "The grind NEVER starts. I am sleeping",
+        type: ActivityType.Custom
+    }
+];
+
+/*const statuses = [
+    "I am on a sea food diet, I see food and then I eat it",
+    "I love fossil fuels. My dream is to work on an oil rig so that I can drink oil whenever I want",
+    "Accelerate your entire PC experience with the fast, powerful NVIDIA® GeForce® GT 1030 graphics card",
+    "They say nothing is impossible, but I do nothing every day",
+    "Where did you get such a long bacon? Long bacon store",
+    "Eating hot chip and lying",
+];*/
 
 const ready: Event = {
     name: Events.ClientReady,
@@ -204,7 +246,13 @@ const ready: Event = {
 
         }
 
-        setInterval(update, 3000);
+        const updatePresence = () => {
+            const newStatus = _.sample(statuses);
+            client.user?.setActivity(newStatus);
+        }
+
+        setInterval(update, 3 * 1000);
+        setInterval(updatePresence, 30 * 1000);
 
         client.refreshCommands();
     }

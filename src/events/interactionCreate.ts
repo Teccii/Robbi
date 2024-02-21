@@ -18,7 +18,7 @@ import { parseAnswers } from "lib/modal";
 import { pollCreateId } from "interactions/chatInput/poll";
 import { PollModel } from "models/Poll";
 
-async function handleDMInteraction(client: CustomClient, interaction: Interaction): Promise<any> {
+async function handleDMInteraction(_client: CustomClient, _interaction: Interaction): Promise<any> {
 
 }
 
@@ -43,7 +43,7 @@ async function handleButton(client: CustomClient, interaction: ButtonInteraction
 
                 //typescript be like
                 let update: any = {};
-                update["votes." + (option - 1)] = 1;
+                update[`votes.${option - 1}`] = 1;
 
                 const success = (await PollModel.findOneAndUpdate(
                     { guildId: interaction.guild.id, pollId: id },

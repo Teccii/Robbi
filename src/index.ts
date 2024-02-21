@@ -125,9 +125,8 @@ const client = new CustomClient(config, {
     Partials.User,
   ],
   intents: [
+    IntentsBitField.Flags.AutoModerationConfiguration,
     IntentsBitField.Flags.DirectMessages,
-    IntentsBitField.Flags.DirectMessageReactions,
-    IntentsBitField.Flags.DirectMessageTyping,
     IntentsBitField.Flags.Guilds,
     IntentsBitField.Flags.GuildEmojisAndStickers,
     IntentsBitField.Flags.GuildMembers,
