@@ -1,0 +1,25 @@
+import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
+import { InteractionCommand } from "lib/command";
+
+
+const description = "description";
+
+const name: InteractionCommand = {
+    data: new SlashCommandBuilder()
+        .setName("name")
+        .setDescription(description),
+    exec: async (client, interaction) => {
+        if (!(interaction instanceof ChatInputCommandInteraction)) {
+            return { error: "Invalid Interaction Type" };
+        }
+
+        return {};
+    },
+    help: {
+        subcommands: [],
+        description,
+        category: "Category"
+    }
+};
+
+export default name;

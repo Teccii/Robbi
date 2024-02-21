@@ -1,0 +1,26 @@
+import {
+    ApplicationCommandType,
+    ContextMenuCommandBuilder,
+    MessageContextMenuCommandInteraction
+} from "discord.js";
+import { InteractionCommand } from "lib/command";
+
+const name: InteractionCommand = {
+    data: new ContextMenuCommandBuilder()
+        .setName("name")
+        .setType(ApplicationCommandType.Message),
+    exec: async (client, interaction) => {
+        if (!(interaction instanceof MessageContextMenuCommandInteraction)) {
+            return { error: "Invalid Interaction Type" };
+        }
+
+        return {};
+    },
+    help: {
+        subcommands: [],
+        description: "description",
+        category: "Category"
+    }
+};
+
+export default name;
