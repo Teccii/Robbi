@@ -43,36 +43,13 @@ const config: ClientConfig = {
       check: () => true,
     },
     {
-      name: "Helper",
+      name: "Moderator",
       level: 1,
       check: (member) => {
-        let helperRole: Role | null;
+        let modRole: Role | null = null;
 
-        if (member && member.guild) {
-          helperRole = member.guild.roles.resolve(
-            member.settings.staffRoles.helper
-          );
-        } else {
-          return false;
-        }
-
-        return Boolean(
-          helperRole && member && member.roles.cache.has(helperRole.id)
-        );
-      },
-    },
-    {
-      name: "Moderator",
-      level: 2,
-      check: (member) => {
-        let modRole: Role | null;
-
-        if (member && member.guild) {
-          modRole = member.guild.roles.resolve(
-            member.settings.staffRoles.moderator
-          );
-        } else {
-          return false;
+        if (member && member.guild && member.settings.staffRoles.moderator) {
+          modRole = member.guild.roles.resolve(member.settings.staffRoles.moderator);
         }
 
         return Boolean(modRole && member && member.roles.cache.has(modRole.id));
@@ -80,28 +57,23 @@ const config: ClientConfig = {
     },
     {
       name: "Administrator",
-      level: 3,
+      level: 2,
       check: (member) => {
-        let adminRole: Role | null;
+        let adminRole: Role | null = null;
 
-        if (member && member.guild) {
-          adminRole = member.guild.roles.resolve(
-            member.settings.staffRoles.admin
-          );
-        } else {
-          return false;
+        if (member && member.guild && member.settings.staffRoles.admin) {
+          adminRole = member.guild.roles.resolve(member.settings.staffRoles.admin);
         }
 
         return Boolean(
-          (member &&
-            member.permissions.has(PermissionFlagsBits.Administrator)) ||
-            (adminRole && member && member.roles.cache.has(adminRole.id))
+          (member && member.permissions.has(PermissionFlagsBits.Administrator))
+          || (adminRole && member && member.roles.cache.has(adminRole.id))
         );
       },
     },
     {
       name: "Server Owner",
-      level: 4,
+      level: 3,
       check: (member) => {
         return Boolean(member && member.guild.ownerId == member.id);
       },

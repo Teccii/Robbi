@@ -40,20 +40,31 @@ const info: InteractionCommand = {
 
         if (subcmd == "role") {
             const role = interaction.options.getRole("role", true);
-            const permissions = role.permissions.toArray().join(", ");
+            const permissions = role.permissions.toArray();
 
-
-            return {
-                embeds: [client.simpleEmbed({
-                    title: role.name,
-                    footer: dayjs().format("DD/MM/YYYY HH:mm"),
-                    color: EmbedColor.Neutral
-                }).setFields(
-                    { name: 'Created', value: `<t:${Math.floor(role.createdAt.getTime() / 1000)}:f>`, inline: true },
-                    { name: 'Members', value: `${role.members.size}`, inline: true },
-                    { name: 'Permissions', value: permissions },
-                )]
-            };
+            if (permissions.length == 0) {
+                return {
+                    embeds: [client.simpleEmbed({
+                        title: role.name,
+                        color: EmbedColor.Neutral
+                    }).setFields(
+                        { name: 'Created', value: `<t:${Math.floor(role.createdAt.getTime() / 1000)}:f>`, inline: true },
+                        { name: 'Members', value: `${role.members.size}`, inline: true },
+                        { name: 'Permissions', value: "No elevated permissions available" },
+                    )]
+                };
+            } else {
+                return {
+                    embeds: [client.simpleEmbed({
+                        title: role.name,
+                        color: EmbedColor.Neutral
+                    }).setFields(
+                        { name: 'Created', value: `<t:${Math.floor(role.createdAt.getTime() / 1000)}:f>`, inline: true },
+                        { name: 'Members', value: `${role.members.size}`, inline: true },
+                        { name: 'Permissions', value: permissions.join(", ") },
+                    )]
+                };
+            }
 
         } else if (subcmd == "user") {
             const member = interaction.options.getMember("user");
@@ -70,7 +81,7 @@ const info: InteractionCommand = {
                     color: EmbedColor.Neutral,
                 }).setAuthor({
                     name: member.user.username,
-                    iconURL: member.avatarURL()!
+                    iconURL: member.user.avatarURL()!
                 }).setFields(
                     { name: 'Registered', value: `<t:${Math.floor(member.user.createdAt.getTime() / 1000)}:f>`, inline: true },
                     { name: 'Joined', value: `<t:${Math.floor(member.joinedAt?.getTime()! / 1000)}:f>`, inline: true },

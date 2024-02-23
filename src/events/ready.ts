@@ -32,6 +32,11 @@ const statuses: {
     },
     {
         name: "customstatus",
+        state: "The horrors are endless but I stay silly :3",
+        type: ActivityType.Custom
+    },
+    {
+        name: "customstatus",
         state: "Me waking up after telling the nice doctor the truth",
         type: ActivityType.Custom
     },

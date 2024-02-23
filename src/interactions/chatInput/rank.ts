@@ -8,6 +8,12 @@ const description = "Lists information about your level.";
 
 const ping: InteractionCommand = {
     data: new SlashCommandBuilder()
+        .addUserOption(option =>
+            option
+                .setRequired(false)
+                .setName("user")
+                .setDescription("The user whose rank to get")
+        )
         .setName("rank")
         .setDescription(description),
     exec: async (client, interaction) => {
@@ -15,9 +21,11 @@ const ping: InteractionCommand = {
             return { error: "Invalid Interaction Type" };
         }
 
+        const user = interaction.options.getUser("user", false) ?? interaction.user;
+
         const userLevel = await LevelModel.findOne({
             guildId: interaction.guild.id,
-            userId: interaction.user.id
+            userId: user.id,
         });
 
         if (userLevel) {
@@ -25,15 +33,15 @@ const ping: InteractionCommand = {
                 guildId: interaction.guild.id
             })).map(v => ({ id: v.userId, xp: v.xp })).sort((a, b) => b.xp - a.xp);
 
-            const userRank = guildLevels.findIndex(v => v.id == interaction.user.id) + 1;
+            const userRank = guildLevels.findIndex(v => v.id == user.id) + 1;
             const level = xpToLevel(userLevel.xp);
 
             return {
                 embeds: [client.simpleEmbed({
-                    title: interaction.user.username,
+                    title: user.username,
                     description: `**Rank**: ${userRank}/${guildLevels.length}\n**XP**: ${userLevel.xp}/${levelToXp(level + 1)}\n**Level**: ${level}`,
                     color: EmbedColor.Neutral
-                }).setThumbnail(interaction.user.avatarURL())]
+                }).setThumbnail(user.avatarURL())]
             };
         }
 

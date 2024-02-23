@@ -1,9 +1,11 @@
-import { ChatInputCommandInteraction, PermissionFlagsBits, Role, SlashCommandBuilder } from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, PermissionFlagsBits, Role, SlashCommandBuilder } from "discord.js";
 import { EmbedColor } from "lib/config";
 import { InteractionCommand } from "lib/command";
 import { LevelModel } from "models/Level";
 import { levelToXp, setRoles, xpToLevel } from "lib/xp";
 import { AnnouncementType, SettingsModel } from "models/Settings";
+
+export const resetServerConfirmButtonId = "resetServerConfirm";
 
 const description = "Manages the leveling system for this guild.";
 
@@ -214,7 +216,7 @@ const xp: InteractionCommand = {
 
                 return {
                     embeds: [client.simpleEmbed({
-                        description: `Successfully added a reward for level ${level}`,
+                        description: `Added a reward for level ${level}`,
                         color: EmbedColor.Success
                     })]
                 };
@@ -233,8 +235,8 @@ const xp: InteractionCommand = {
 
                 return {
                     embeds: [client.simpleEmbed({
-                        description: `Successfully added a reward for level ${level}`,
-                        color: EmbedColor.Success
+                        description: `Removed a reward from level ${level}`,
+                        color: EmbedColor.Error
                     })]
                 };
             } else if (subcmd == "get") {
@@ -316,7 +318,7 @@ const xp: InteractionCommand = {
 
                 await LevelModel.findOneAndUpdate(
                     { guildId: interaction.guild.id, userId: member.id },
-                    { cachedLevel: 0, xp: 0 },
+                    { $unset: { cachedLevel: 0, xp: 0 } },
                     { upsert: true }
                 );
 
@@ -329,16 +331,21 @@ const xp: InteractionCommand = {
                     })]
                 };
             } else if (subcmd == "server") {
-                await LevelModel.updateMany(
-                    { guildId: interaction.guild.id },
-                    { cachedLevel: 0, xp: 0 }
-                );
+                const components = [new ActionRowBuilder<ButtonBuilder>().setComponents(
+                    new ButtonBuilder()
+                        .setCustomId(resetServerConfirmButtonId)
+                        .setLabel("Confirm")
+                        .setStyle(ButtonStyle.Danger)
+                )];
 
                 return {
                     embeds: [client.simpleEmbed({
-                        description: `Reset levels for the entire server`,
-                        color: EmbedColor.Neutral
-                    })]
+                        description: ":warning: You are about the reset the levels of every member. **Continue?**",
+                        footer: "This action cannot be undone",
+                        color: EmbedColor.Error,
+                    })],
+                    components,
+                    ephemeral: true
                 };
             }
         } else if (group == "set") {

@@ -26,6 +26,10 @@ const log: InteractionCommand = {
                     { name: "Role Update", value: "roleUpdate" },
                     { name: "All Role Events", value: "roleAll" },
                     { name: "Case Create", value: "caseCreate" },
+                    { name: "Expression Create", value: "expressionCreate" },
+                    { name: "Expression Delete", value: "expressionDelete" },
+                    { name: "Expression Update", value: "expressionUpdate" },
+                    { name: "All Expression Events", value: "expressionAll" },
                     { name: "Case Delete", value: "caseDelete" },
                     { name: "Case Update", value: "caseUpdate" },
                     { name: "Case Expire", value: "caseExpire" },
@@ -78,6 +82,11 @@ const log: InteractionCommand = {
                 break;
             }
 
+            case "expressionAll": {
+                events = ["expressionCreate", "expressionDelete", "expressionUpdate"];
+                break;
+            }
+
             case "caseAll": {
                 events = ["caseCreate", "caseDelete", "caseUpdate", "caseExpire"];
                 break;
@@ -89,6 +98,7 @@ const log: InteractionCommand = {
                     "guildMemberAdd", "guildMemberRemove", "guildMemberUpdate",
                     "messageDelete", "messageUpdate",
                     "roleCreate", "roleDelete", "roleUpdate",
+                    "expressionCreate", "expressionDelete", "expressionUpdate",
                     "caseCreate", "caseDelete", "caseUpdate", "caseExpire",
                 ];
                 break;

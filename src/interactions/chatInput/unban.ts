@@ -37,6 +37,13 @@ const unban: InteractionCommand = {
         const reason = interaction.options.getString("reason", false) ?? "No reason provided.";
         const ban = await interaction.guild.bans.fetch(user.id);
 
+        if (user.id == interaction.user.id) {
+            return {
+                error: "Unable to self-moderate",
+                ephemeral: true
+            }
+        }
+
         if (!ban) {
             return {
                 error: "Unable to unban a user that isn't banned",

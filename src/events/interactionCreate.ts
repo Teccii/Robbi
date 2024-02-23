@@ -1,10 +1,13 @@
 import {
+    AnySelectMenuInteraction,
     AutocompleteInteraction,
     ButtonInteraction,
     CommandInteraction,
     Events,
+    GuildMember,
     Interaction,
-    ModalSubmitInteraction
+    ModalBuilder,
+    ModalSubmitInteraction,
 } from "discord.js";
 import { CustomInteractionReplyOptions, toReplyOptions } from "lib/command";
 import { SettingsModel } from "models/Settings";
@@ -14,12 +17,47 @@ import Event from "lib/event";
 import colors from "colors";
 import { wildcardAddId, wildcardAddQuestions } from "interactions/chatInput/wildcard";
 import CustomClient from "lib/client";
-import { parseAnswers } from "lib/modal";
+import { parseAnswers, toActionRows } from "lib/modal";
 import { pollCreateId } from "interactions/chatInput/poll";
 import { PollModel } from "models/Poll";
+import {
+    ticketDeleteId,
+    ticketGeneralId,
+    ticketGeneralQuestions,
+    ticketReportId,
+    ticketReportQuestions,
+    ticketSelectId 
+} from "interactions/chatInput/tickets";
+import { TicketType, createTicket } from "lib/tickets";
+import { resetServerConfirmButtonId } from "interactions/chatInput/xp";
+import { LevelModel } from "models/Level";
 
 async function handleDMInteraction(_client: CustomClient, _interaction: Interaction): Promise<any> {
 
+}
+
+async function handleSelectMenu(_client: CustomClient, interaction: AnySelectMenuInteraction): Promise<any> {
+    if (interaction.isStringSelectMenu()) {
+        if (interaction.customId == ticketSelectId) {
+            const selected = interaction.values[0];
+
+            if (selected == ticketGeneralId) {
+                const modal = new ModalBuilder()
+                    .setCustomId(ticketGeneralId)
+                    .setTitle("General Support")
+                    .setComponents(toActionRows(ticketGeneralQuestions));
+
+                await interaction.showModal(modal);
+            } else if (selected == ticketReportId) {
+                const modal = new ModalBuilder()
+                    .setCustomId(ticketReportId)
+                    .setTitle("Report Person")
+                    .setComponents(toActionRows(ticketReportQuestions));
+
+                await interaction.showModal(modal);
+            }
+        }
+    }
 }
 
 async function handleButton(client: CustomClient, interaction: ButtonInteraction): Promise<any> {
@@ -27,7 +65,30 @@ async function handleButton(client: CustomClient, interaction: ButtonInteraction
         return;
     }
 
-    if (interaction.customId.startsWith(pollCreateId)) {
+    if (interaction.customId == ticketDeleteId && interaction.member instanceof GuildMember) {
+        const permLevel = client.permLevel(interaction.member);
+
+        if (permLevel >= 1) {
+            await interaction.channel?.delete();
+        } else {
+            await interaction.reply({
+                embeds: [client.simpleError("Insufficient Permissions")],
+                ephemeral: true
+            });
+        }
+    } else if (interaction.customId == resetServerConfirmButtonId) {
+        await LevelModel.updateMany(
+            { guildId: interaction.guild.id },
+            { $unset: { cachedLevel: 0, xp: 0 } }
+        );
+
+        await interaction.channel?.send({
+            embeds: [client.simpleEmbed({
+                description: `:cold_face: ${interaction.user} just reset the entire server's levels!`,
+                color: EmbedColor.Error,
+            })]
+        });
+    } else if (interaction.customId.startsWith(pollCreateId)) {
         const split = interaction.customId.split("-")
         const id = split[1];
         const option = Number(split[2]);
@@ -84,7 +145,29 @@ async function handleModal(client: CustomClient, interaction: ModalSubmitInterac
         return;
     }
 
-    if (interaction.customId.startsWith(wildcardAddId)) {
+    if (interaction.customId == ticketGeneralId) {
+        const answers = await parseAnswers(client, interaction, ticketGeneralQuestions);
+        
+        const success = await createTicket(client, interaction, answers, TicketType.GeneralSupport);
+
+        if (!success) {
+            await interaction.reply({
+                embeds: [client.simpleError("Something went wrong while trying to open ticket, please try again")],
+                ephemeral: true,
+            });
+        }
+    } else if (interaction.customId == ticketReportId) {
+        const answers = await parseAnswers(client, interaction, ticketReportQuestions);
+        
+        const success = await createTicket(client, interaction, answers, TicketType.ReportPerson);
+
+        if (!success) {
+            await interaction.reply({
+                embeds: [client.simpleError("Something went wrong while trying to open ticket, please try again")],
+                ephemeral: true,
+            });
+        }
+    } else if (interaction.customId.startsWith(wildcardAddId)) {
         const id = interaction.customId.slice(wildcardAddId.length + 1);
 
         info("modal", `${wildcardAddId} - ${id}`);
@@ -214,6 +297,8 @@ const interactionCreate: Event = {
             await handleButton(client, interaction);
         } else if (interaction.isModalSubmit()) {
             await handleModal(client, interaction);
+        } else if (interaction.isAnySelectMenu()) {
+            await handleSelectMenu(client, interaction);
         } else if (interaction.isCommand()) {
             await handleCommand(client, interaction);
         } else if (interaction.isAutocomplete()) {

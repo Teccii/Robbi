@@ -13,8 +13,8 @@ export enum AnnouncementType {
 export interface ISettings extends Document {
     leveling: {
         levelRoles: {
-            level: number,
-            role: string,
+            level: number;
+            role: string;
         }[];
         removePastRoles: boolean;
         announcements: AnnouncementType;
@@ -26,9 +26,9 @@ export interface ISettings extends Document {
         replyCooldown: number;
     };
     staffRoles: {
-        helper: string;
-        moderator: string;
-        admin: string;
+        helper?: string;
+        moderator?: string;
+        admin?: string;
     };
     rules: {
         title: string;
@@ -49,6 +49,7 @@ export interface ISettings extends Document {
         event: string;
         channel: string;
     }[];
+    ticketCategory?: string;
     createdAt: number;
     updatedAt: number;
     toUpdate: boolean;
@@ -95,6 +96,7 @@ const settingsSchema = new Schema<ISettings>(
             event: String,
             channel: String,
         }],
+        ticketCategory: String,
         toUpdate: { type: Boolean, default: false },
     },
     {

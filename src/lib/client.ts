@@ -17,7 +17,6 @@ import { readdir } from "fs/promises";
 import { join } from "path";
 import { error, load } from "lib/log";
 import Event from "./event";
-import dayjs from "dayjs";
 
 export default class CustomClient extends Client {
   commands: Collection<string, InteractionCommand>;
@@ -74,7 +73,6 @@ export default class CustomClient extends Client {
   simpleError(error: string): EmbedBuilder {
     return this.simpleEmbed({
       description: error,
-      footer: dayjs().format("DD/MM/YYYY HH:mm"),
       color: EmbedColor.Error,
     });
   }

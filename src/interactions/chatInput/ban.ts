@@ -52,9 +52,16 @@ const ban: InteractionCommand = {
 
         if (!member) {
             return {
-                error: "User is not a member of this guild.",
+                error: "User is not a member of this guild",
                 ephemeral: true,
             };
+        }
+
+        if (member.id == interaction.member.id) {
+            return {
+                error: "Unable to self-moderate",
+                ephemeral: true
+            }
         }
 
         if (client.permLevel(interaction.member) <= client.permLevel(member)) {

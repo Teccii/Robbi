@@ -56,6 +56,13 @@ const mute: InteractionCommand = {
             };
         }
 
+        if (member.id == interaction.member.id) {
+            return {
+                error: "Unable to self-moderate",
+                ephemeral: true
+            }
+        }
+
         if (client.permLevel(interaction.member) <= client.permLevel(member)) {
             return {
                 error: "Cannot moderate user with similar or higher authority",

@@ -42,6 +42,13 @@ const unmute: InteractionCommand = {
             };
         }
 
+        if (member.id == interaction.member.id) {
+            return {
+                error: "Unable to self-moderate",
+                ephemeral: true
+            }
+        }
+
         if (!member.isCommunicationDisabled()) {
             return { error: "Unable to unmute a user that isn't muted" };
         }

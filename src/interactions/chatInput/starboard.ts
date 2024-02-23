@@ -80,7 +80,7 @@ const starboard: InteractionCommand = {
         const adminOnly = ["add", "remove"];
         const staffOnly = ["list"];
 
-        if ((permLevel < 3 && adminOnly.includes(subcmd)) || (permLevel < 1 && staffOnly.includes(subcmd))) {
+        if ((permLevel < 2 && adminOnly.includes(subcmd)) || (permLevel < 1 && staffOnly.includes(subcmd))) {
 			return { error: "Insufficient permissions", ephemeral: true };
 		}
 
