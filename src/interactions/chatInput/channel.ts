@@ -1,8 +1,12 @@
-import { ChannelType, ChatInputCommandInteraction, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
+import { 
+    ChannelType,
+    ChatInputCommandInteraction,
+    SlashCommandBuilder
+} from "discord.js";
 import { EmbedColor } from "lib/config";
 import { InteractionCommand } from "lib/command";
 
-const channelTypes: (
+type ChannelTypes = (
     ChannelType.GuildText
     | ChannelType.GuildVoice
     | ChannelType.GuildCategory
@@ -13,12 +17,12 @@ const channelTypes: (
     | ChannelType.GuildStageVoice
     | ChannelType.GuildForum
     | ChannelType.GuildMedia
-)[] = [
+)[];
+
+const channelTypes: ChannelTypes = [
     ChannelType.GuildText,
     ChannelType.GuildVoice,
     ChannelType.GuildForum,
-    ChannelType.PublicThread,
-    ChannelType.PrivateThread,
 ];
 
 const description = "Manages channel visibility for specific members.";
@@ -94,21 +98,11 @@ const channel: InteractionCommand = {
 
         const channel = interaction.options.getChannel("channel", false, channelTypes) ?? interaction.channel;
 
-        if (channel && channelTypes.includes(channel.type)) {
+        if (channel && channel.type != ChannelType.GuildCategory && !channel.isThread()) {
             if (subcmd == "show") {
-                await channel.edit({
-                    permissionOverwrites: [{
-                        id: member.id,
-                        allow: PermissionFlagsBits.ViewChannel
-                    }]
-                });
+                await channel.permissionOverwrites.edit(member, { ViewChannel: true });
             } else if (subcmd == "hide") {
-                await channel.edit({
-                    permissionOverwrites: [{
-                        id: member.id,
-                        deny: PermissionFlagsBits.ViewChannel
-                    }]
-                });
+                await channel.permissionOverwrites.edit(member, { ViewChannel: false });
             }
         }
 

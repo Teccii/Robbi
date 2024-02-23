@@ -15,6 +15,16 @@ export class CooldownHandler {
         return this.collection.hasAny(str);
     }
 
+    expires(str: string): number | undefined {
+        const entry = this.collection.get(str);
+
+        if (entry) {
+            return Math.trunc((entry.date.getTime() + entry.duration) / 1000);
+        } else {
+            return undefined;
+        }
+    }
+
     set(str: string, duration: number) {
         this.collection.set(str, {
             date: new Date(),

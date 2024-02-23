@@ -49,6 +49,7 @@ export interface ISettings extends Document {
         event: string;
         channel: string;
     }[];
+    staffApplyChannel?: string;
     ticketCategory?: string;
     createdAt: number;
     updatedAt: number;
@@ -96,6 +97,7 @@ const settingsSchema = new Schema<ISettings>(
             event: String,
             channel: String,
         }],
+        staffApplyChannel: String,
         ticketCategory: String,
         toUpdate: { type: Boolean, default: false },
     },

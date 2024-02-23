@@ -31,6 +31,8 @@ import {
 import { TicketType, createTicket } from "lib/tickets";
 import { resetServerConfirmButtonId } from "interactions/chatInput/xp";
 import { LevelModel } from "models/Level";
+import { staffApplyModalId, staffApplyQuestions } from "interactions/chatInput/staffApply";
+import dayjs from "dayjs";
 
 async function handleDMInteraction(_client: CustomClient, _interaction: Interaction): Promise<any> {
 
@@ -146,6 +148,8 @@ async function handleModal(client: CustomClient, interaction: ModalSubmitInterac
     }
 
     if (interaction.customId == ticketGeneralId) {
+        info("modal", `${ticketGeneralId}`);
+
         const answers = await parseAnswers(client, interaction, ticketGeneralQuestions);
         
         const success = await createTicket(client, interaction, answers, TicketType.GeneralSupport);
@@ -157,6 +161,8 @@ async function handleModal(client: CustomClient, interaction: ModalSubmitInterac
             });
         }
     } else if (interaction.customId == ticketReportId) {
+        info("modal", `${ticketReportId}`);
+
         const answers = await parseAnswers(client, interaction, ticketReportQuestions);
         
         const success = await createTicket(client, interaction, answers, TicketType.ReportPerson);
@@ -202,6 +208,56 @@ async function handleModal(client: CustomClient, interaction: ModalSubmitInterac
                 embeds: [client.simpleError(`A starboard with the id \`${id}\` already exists`)]
             });
         }
+    } else if (interaction.customId == staffApplyModalId) {
+        info("modal", `${staffApplyModalId}`);
+
+        const answers = await parseAnswers(client, interaction, staffApplyQuestions);
+
+        const reason = answers.get("reason")!;
+        const age = answers.get("age")!;
+        const timezone = answers.get("timezone")!;
+
+        const channelId = interaction.settings.staffApplyChannel;
+
+        if (channelId) {
+            const channel = await interaction.guild.channels.fetch(channelId);
+
+            if (channel && !channel.isDMBased() && channel.isTextBased()) {
+                const msg = await channel.send({
+                    embeds: [client.simpleEmbed({
+                        title: `${interaction.user.username} is applying for staff!`,
+                        footer: `User ID: ${interaction.user.id} · ${dayjs().format("DD/MM/YYYY HH:mm")}`,
+                        color: EmbedColor.Neutral,
+                    }).setFields(
+                        { name: "Why should we pick you?", value: reason },
+                        { name: "How old are you?", value: age },
+                        { name: "What is your timezone?", value: timezone },
+                    )]
+                });
+
+                await msg.startThread({
+                    name: `${interaction.user.username}'s Staff Application`,
+                });
+
+                await interaction.reply({
+                    embeds: [client.simpleEmbed({
+                        description: "Staff application sent!",
+                        color: EmbedColor.Success,
+                    })],
+                    ephemeral: true
+                });
+
+                return;
+            }
+        }
+
+        await interaction.reply({
+            embeds: [client.simpleEmbed({
+                description: "Something went wrong while trying to send application",
+                color: EmbedColor.Error,
+            })],
+            ephemeral: true
+        });
     }
 }
 

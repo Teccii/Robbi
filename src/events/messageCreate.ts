@@ -2,58 +2,12 @@ import { AnnouncementType, ISettings, SettingsModel } from "models/Settings";
 import { ILevel, LevelModel } from "models/Level";
 import { Events, GuildMember, Message, TextBasedChannel } from "discord.js";
 import { EmbedColor } from "lib/config";
-import { setRoles, xpToLevel } from "lib/xp";
+import { handleNewLevel, setRoles, xpToLevel } from "lib/xp";
 import { log } from "lib/log";
 import CustomClient from "lib/client";
 import Event from "lib/event";
 import colors from "colors";
 import dayjs from "dayjs";
-
-function announce(newLevel: number, settings: ISettings): boolean {
-    const _type = settings.leveling.announcements;
-
-    if (_type == AnnouncementType.Always) {
-        return true;
-    }
-
-    const fiveVariants = [AnnouncementType.EveryFive, AnnouncementType.EveryFiveAndRewards];
-    const tenVariants = [AnnouncementType.EveryTen, AnnouncementType.EveryTenAndRewards];
-
-    if (newLevel % 5 == 0 && fiveVariants.includes(_type)) {
-        return true;
-    }
-
-    if (newLevel % 10 == 0 && tenVariants.includes(_type)) {
-        return true;
-    }
-
-    const hasRewards = settings.leveling.levelRoles.some(v => v.level == newLevel);
-    const rewardVariants = [
-        AnnouncementType.RewardsOnly,
-        AnnouncementType.EveryFiveAndRewards,
-        AnnouncementType.EveryTenAndRewards
-    ];
-
-    return hasRewards && rewardVariants.includes(_type);
-}
-
-async function handleNewLevel(client: CustomClient, member: GuildMember, channel: TextBasedChannel, newLevel: number, leveling: ILevel, settings: ISettings) {
-    leveling.cachedLevel = newLevel;
-
-    await leveling.save();
-
-    if (announce(newLevel, settings)) {
-        await channel.send({
-            embeds: [client.simpleEmbed({
-                description: `${member} is now level ${newLevel}! :tada:`,
-                footer: `${dayjs().format("DD/MM/YYYY HH:mm")}`,
-                color: EmbedColor.Neutral
-            })]
-        });
-    }
-
-    await setRoles(member, newLevel, settings);
-}
 
 const messageCreate: Event = {
     name: Events.MessageCreate,
