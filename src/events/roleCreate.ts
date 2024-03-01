@@ -1,10 +1,10 @@
-import { SettingsModel } from "models/Settings";
 import { Events, Role } from "discord.js";
+import { SettingsModel } from "models/Settings";
+import { EmbedColor } from "lib/config";
 import { log } from "lib/log";
 import Event from "lib/event";
 import colors from "colors";
 import dayjs from "dayjs";
-import { EmbedColor } from "lib/config";
 
 const roleCreate: Event = {
     name: Events.GuildRoleCreate,

@@ -1,6 +1,6 @@
 import { ChatInputCommandInteraction, SlashCommandBuilder, userMention } from "discord.js";
-import { EmbedColor } from "lib/config";
 import { InteractionCommand } from "lib/command";
+import { EmbedColor } from "lib/config";
 import { LevelModel } from "models/Level";
 import { xpToLevel } from "lib/xp";
 import dayjs from "dayjs";

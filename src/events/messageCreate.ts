@@ -1,13 +1,10 @@
-import { AnnouncementType, ISettings, SettingsModel } from "models/Settings";
-import { ILevel, LevelModel } from "models/Level";
-import { Events, GuildMember, Message, TextBasedChannel } from "discord.js";
-import { EmbedColor } from "lib/config";
-import { handleNewLevel, setRoles, xpToLevel } from "lib/xp";
+import { Events, Message } from "discord.js";
+import { SettingsModel } from "models/Settings";
+import { LevelModel } from "models/Level";
+import { handleNewLevel, xpToLevel } from "lib/xp";
 import { log } from "lib/log";
-import CustomClient from "lib/client";
 import Event from "lib/event";
 import colors from "colors";
-import dayjs from "dayjs";
 
 const messageCreate: Event = {
     name: Events.MessageCreate,

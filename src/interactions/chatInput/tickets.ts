@@ -7,8 +7,8 @@ import {
     StringSelectMenuOptionBuilder,
     TextInputStyle
 } from "discord.js";
-import { EmbedColor } from "lib/config";
 import { InteractionCommand } from "lib/command";
+import { EmbedColor } from "lib/config";
 import { Question } from "lib/modal";
 
 export const ticketSelectId = "ticketSelect";

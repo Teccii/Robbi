@@ -2,7 +2,6 @@ import {
     ApplicationCommandType,
     ContextMenuCommandBuilder,
     MessageContextMenuCommandInteraction,
-    PermissionFlagsBits,
     parseEmoji
 } from "discord.js";
 import { InteractionCommand } from "lib/command";
@@ -23,8 +22,6 @@ function getEmojiUrl(emoji: string): string | null {
 
 const emojiSteal: InteractionCommand = {
     data: new ContextMenuCommandBuilder()
-        .setDMPermission(false)
-        .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
         .setName("Steal Emoji")
         .setType(ApplicationCommandType.Message),
     exec: async (client, interaction) => {
@@ -47,8 +44,32 @@ const emojiSteal: InteractionCommand = {
                     embeds.push(client.simpleEmbed({ color: EmbedColor.Success }).setImage(url));
                 }
             }
-            
-            return { embeds };
+
+            if (emojis.length > 1) {
+                let dmSuccessful = true;
+
+                if (interaction.user.bot) {
+                    dmSuccessful = false;
+                } else {
+                    await interaction.user.send({ embeds }).catch(_ => {
+                        dmSuccessful = false;
+                    });
+                }
+
+                if (dmSuccessful) {
+                    return {
+                        embeds: [client.simpleEmbed({
+                            description: "Robbi has sent you the emoji(s)",
+                            color: EmbedColor.Success,
+                        })],
+                        ephemeral: true
+                    };
+                } else {
+                    return { error: "Unable to send messages to this user", ephemeral: true };
+                }
+            } else {
+                return { embeds };
+            }
         } else {
             return { error: "That message does not contain any emojis", ephemeral: true };
         }

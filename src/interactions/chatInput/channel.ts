@@ -1,10 +1,6 @@
-import { 
-    ChannelType,
-    ChatInputCommandInteraction,
-    SlashCommandBuilder
-} from "discord.js";
-import { EmbedColor } from "lib/config";
+import {  ChannelType, ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 import { InteractionCommand } from "lib/command";
+import { EmbedColor } from "lib/config";
 
 type ChannelTypes = (
     ChannelType.GuildText

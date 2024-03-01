@@ -1,9 +1,9 @@
 import { GuildMember, TextBasedChannel } from "discord.js";
 import { AnnouncementType, ISettings } from "models/Settings";
-import CustomClient from "./client";
 import { EmbedColor } from "./config";
-import dayjs from "dayjs";
 import { ILevel } from "models/Level";
+import CustomClient from "./client";
+import dayjs from "dayjs";
 
 export function levelToXp(level: number): number {
     return Math.floor(40 * level * level);

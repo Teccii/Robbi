@@ -1,7 +1,7 @@
 import { ChatInputCommandInteraction, Role, SlashCommandBuilder } from "discord.js";
-import { EmbedColor } from "lib/config";
 import { InteractionCommand } from "lib/command";
 import { SettingsModel } from "models/Settings";
+import { EmbedColor } from "lib/config";
 
 const description = "Manages the rewards of the leveling system.";
 

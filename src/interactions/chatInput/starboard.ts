@@ -1,9 +1,14 @@
-import { ChannelType, ChatInputCommandInteraction, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
-import { EmbedColor } from "lib/config";
+import {
+    ChannelType,
+    ChatInputCommandInteraction,
+    PermissionFlagsBits,
+    SlashCommandBuilder
+} from "discord.js";
 import { InteractionCommand } from "lib/command";
-import { SettingsModel } from "models/Settings";
 import { StarboardMessageModel } from "models/StarboardMessage";
-import { extractEmojis, hasEmoji } from "lib/emoji";
+import { SettingsModel } from "models/Settings";
+import { EmbedColor } from "lib/config";
+import { extractEmojis } from "lib/emoji";
 
 const description = "Manages the starboard system for this guild.";
 

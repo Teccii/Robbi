@@ -6,8 +6,8 @@ import {
     PermissionFlagsBits,
     SlashCommandBuilder
 } from "discord.js";
-import { EmbedColor } from "lib/config";
 import { InteractionCommand } from "lib/command";
+import { EmbedColor } from "lib/config";
 import { PollModel } from "models/Poll";
 import { endPoll } from "lib/poll";
 

@@ -1,8 +1,8 @@
 import { ChatInputCommandInteraction, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
-import { EmbedColor } from "lib/config";
 import { InteractionCommand } from "lib/command";
-import { info } from "lib/log";
 import { CaseModel, CaseType} from "models/Case";
+import { EmbedColor } from "lib/config";
+import { info } from "lib/log";
 import dayjs from "dayjs";
 
 const description = "Bans a member from the server.";

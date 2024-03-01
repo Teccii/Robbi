@@ -1,4 +1,10 @@
-import { ChannelType, EmbedBuilder, Events, GuildChannel, OverwriteType } from "discord.js";
+import {
+    ChannelType,
+    EmbedBuilder,
+    Events,
+    GuildChannel,
+    OverwriteType
+} from "discord.js";
 import { SettingsModel } from "models/Settings";
 import { EmbedColor } from "lib/config";
 import { log } from "lib/log";

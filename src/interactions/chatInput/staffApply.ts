@@ -1,4 +1,9 @@
-import { ChatInputCommandInteraction, ModalBuilder, SlashCommandBuilder, TextInputStyle } from "discord.js";
+import {
+    ChatInputCommandInteraction,
+    ModalBuilder,
+    SlashCommandBuilder,
+    TextInputStyle
+} from "discord.js";
 import { InteractionCommand } from "lib/command";
 import { Question, toActionRows } from "lib/modal";
 

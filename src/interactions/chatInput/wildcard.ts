@@ -5,9 +5,9 @@ import {
     SlashCommandBuilder,
     TextInputStyle
 } from "discord.js";
-import { EmbedColor } from "lib/config";
 import { InteractionCommand } from "lib/command";
 import { SettingsModel } from "models/Settings";
+import { EmbedColor } from "lib/config";
 import { Question, toActionRows } from "lib/modal";
 
 export const wildcardAddId = "wildcardAdd";

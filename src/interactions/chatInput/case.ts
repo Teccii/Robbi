@@ -1,6 +1,6 @@
 import { ChatInputCommandInteraction, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
-import { EmbedColor } from "lib/config";
 import { InteractionCommand } from "lib/command";
+import { EmbedColor } from "lib/config";
 import { CaseModel } from "models/Case";
 import dayjs from "dayjs";
 

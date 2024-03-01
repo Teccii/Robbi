@@ -1,7 +1,7 @@
 import { ChatInputCommandInteraction, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import { InteractionCommand } from "lib/command";
-import { EmbedColor } from "lib/config";
 import { SettingsModel } from "models/Settings";
+import { EmbedColor } from "lib/config";
 
 const description = "Manages staff roles for this guild.";
 

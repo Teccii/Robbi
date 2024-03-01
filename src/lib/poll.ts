@@ -1,4 +1,10 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, Guild } from "discord.js";
+import {
+    ActionRowBuilder,
+    ButtonBuilder,
+    ButtonStyle,
+    ComponentType,
+    Guild
+ } from "discord.js";
 import { IPoll, PollModel } from "models/Poll";
 import { EmbedColor } from "./config";
 import CustomClient from "./client";

@@ -1,4 +1,10 @@
-import { ActionRowBuilder, ModalActionRowComponentBuilder, ModalSubmitInteraction, TextInputBuilder, TextInputStyle } from "discord.js";
+import {
+    ActionRowBuilder,
+    ModalActionRowComponentBuilder,
+    ModalSubmitInteraction,
+    TextInputBuilder,
+    TextInputStyle
+} from "discord.js";
 import CustomClient from "./client";
 
 export class Question {

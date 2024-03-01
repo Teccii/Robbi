@@ -1,8 +1,8 @@
 import { ChannelType, ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
-import { EmbedColor } from "lib/config";
 import { CustomInteractionReplyOptions, InteractionCommand } from "lib/command";
-import CustomClient from "lib/client";
 import { AnnouncementType, SettingsModel } from "models/Settings";
+import { EmbedColor } from "lib/config";
+import CustomClient from "lib/client";
 
 async function handleLeveling(client: CustomClient, interaction: ChatInputCommandInteraction): Promise<CustomInteractionReplyOptions> {
     if (!interaction.guild) {

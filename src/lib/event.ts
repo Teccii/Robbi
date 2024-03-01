@@ -1,4 +1,4 @@
-import { ClientEvents, Events } from "discord.js";
+import { ClientEvents } from "discord.js";
 import CustomClient from "./client";
 
 export default interface Event {

@@ -3,8 +3,8 @@ import {
     PermissionFlagsBits,
     SlashCommandBuilder
 } from "discord.js";
-import { EmbedColor } from "lib/config";
 import { InteractionCommand } from "lib/command";
+import { EmbedColor } from "lib/config";
 import { info } from "lib/log";
 import dayjs from "dayjs";
 

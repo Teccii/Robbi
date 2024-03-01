@@ -1,10 +1,10 @@
 import { Events, Message, MessageReaction, User } from "discord.js";
+import { StarboardMessageModel } from "models/StarboardMessage";
+import { getStarboardMessage } from "lib/starboard";
 import { SettingsModel } from "models/Settings";
 import { log } from "lib/log";
 import Event from "lib/event";
 import colors from "colors";
-import { StarboardMessageModel } from "models/StarboardMessage";
-import { getStarboardMessage } from "lib/starboard";
 
 const messageReactionRemove: Event = {
     name: Events.MessageReactionRemove,

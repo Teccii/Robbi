@@ -10,14 +10,7 @@ import {
     ModalSubmitInteraction,
 } from "discord.js";
 import { CustomInteractionReplyOptions, toReplyOptions } from "lib/command";
-import { SettingsModel } from "models/Settings";
-import { EmbedColor } from "lib/config";
-import { info, log } from "lib/log";
-import Event from "lib/event";
-import colors from "colors";
 import { wildcardAddId, wildcardAddQuestions } from "interactions/chatInput/wildcard";
-import CustomClient from "lib/client";
-import { parseAnswers, toActionRows } from "lib/modal";
 import { pollCreateId } from "interactions/chatInput/poll";
 import { PollModel } from "models/Poll";
 import {
@@ -30,8 +23,15 @@ import {
 } from "interactions/chatInput/tickets";
 import { TicketType, createTicket } from "lib/tickets";
 import { resetServerConfirmButtonId } from "interactions/chatInput/xp";
-import { LevelModel } from "models/Level";
 import { staffApplyModalId, staffApplyQuestions } from "interactions/chatInput/staffApply";
+import { parseAnswers, toActionRows } from "lib/modal";
+import { SettingsModel } from "models/Settings";
+import { EmbedColor } from "lib/config";
+import { LevelModel } from "models/Level";
+import { info, log } from "lib/log";
+import CustomClient from "lib/client";
+import Event from "lib/event";
+import colors from "colors";
 import dayjs from "dayjs";
 
 async function handleDMInteraction(_client: CustomClient, _interaction: Interaction): Promise<any> {

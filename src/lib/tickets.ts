@@ -1,7 +1,15 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, EmbedBuilder, ModalSubmitInteraction, PermissionFlagsBits } from "discord.js";
-import CustomClient from "./client";
+import {
+    ActionRowBuilder,
+    ButtonBuilder,
+    ButtonStyle,
+    ChannelType,
+    EmbedBuilder,
+    ModalSubmitInteraction,
+    PermissionFlagsBits
+} from "discord.js";
 import { EmbedColor } from "./config";
 import { ticketDeleteId } from "interactions/chatInput/tickets";
+import CustomClient from "./client";
 
 export enum TicketType {
 	GeneralSupport,

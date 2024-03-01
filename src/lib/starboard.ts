@@ -5,8 +5,8 @@ import {
     EmbedBuilder,
     Message
 } from "discord.js";
-import CustomClient from "./client";
 import { EmbedColor } from "./config";
+import CustomClient from "./client";
 import dayjs from "dayjs";
 
 export function getStarboardMessage(

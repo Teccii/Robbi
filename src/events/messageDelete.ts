@@ -1,11 +1,17 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Events, Message } from "discord.js";
+import {
+    ActionRowBuilder,
+    ButtonBuilder,
+    ButtonStyle,
+    Events,
+    Message
+} from "discord.js";
+import { StarboardMessageModel } from "models/StarboardMessage";
 import { SettingsModel } from "models/Settings";
 import { EmbedColor } from "lib/config";
 import { log } from "lib/log";
 import Event from "lib/event";
 import colors from "colors";
 import dayjs from "dayjs";
-import { StarboardMessageModel } from "models/StarboardMessage";
 
 const messageDelete: Event = {
     name: Events.MessageDelete,
