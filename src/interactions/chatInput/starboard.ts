@@ -3,11 +3,7 @@ import { EmbedColor } from "lib/config";
 import { InteractionCommand } from "lib/command";
 import { SettingsModel } from "models/Settings";
 import { StarboardMessageModel } from "models/StarboardMessage";
-import emojiRegex from "emoji-regex";
-
-function isEmoji(str: string): boolean {
-    return Boolean(str.match(emojiRegex()) || str.match(/<a:.+?:\d+>|<:.+?:\d+>/));
-}
+import { extractEmojis, hasEmoji } from "lib/emoji";
 
 const description = "Manages the starboard system for this guild.";
 
@@ -90,7 +86,9 @@ const starboard: InteractionCommand = {
             const channel = interaction.options.getChannel("channel", true);
             const threshold = interaction.options.getInteger("threshold", false) ?? 10;
 
-            if (isEmoji(emoji)) {
+            const emojis = extractEmojis(emoji);
+
+            if (emojis) {
                 if (!interaction.settings.starboards.some(v => v.id == id)) {
                     client.settings.set(
                         interaction.guild.id,
@@ -100,7 +98,7 @@ const starboard: InteractionCommand = {
                                 $push: {
                                     starboards: {
                                         id,
-                                        emoji,
+                                        emoji: emojis[0],
                                         channel: channel.id,
                                         threshold
                                     }

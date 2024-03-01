@@ -127,7 +127,7 @@ const channel: InteractionCommand = {
     help: {
         subcommands: ["show", "hide"],
         description,
-        category: "Information"
+        category: "Management"
     }
 };
 

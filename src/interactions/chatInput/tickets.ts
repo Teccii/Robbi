@@ -75,7 +75,7 @@ const tickets: InteractionCommand = {
     help: {
         subcommands: ["settings", "embed"],
         description,
-        category: "Information"
+        category: "Management"
     }
 };
 
