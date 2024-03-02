@@ -14,7 +14,7 @@ import { durationToString } from "lib/duration";
 
 export const resetServerConfirmButtonId = "resetServerConfirm";
 
-const description = "Manages the leveling system for this guild.";
+const description = "Manages XP and levels in this guild.";
 
 const xp: InteractionCommand = {
     data: new SlashCommandBuilder()
