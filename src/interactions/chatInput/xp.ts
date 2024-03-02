@@ -10,6 +10,7 @@ import { InteractionCommand } from "lib/command";
 import { EmbedColor } from "lib/config";
 import { LevelModel } from "models/Level";
 import { levelToXp, setRoles, xpToLevel } from "lib/xp";
+import { durationToString } from "lib/duration";
 
 export const resetServerConfirmButtonId = "resetServerConfirm";
 
@@ -76,6 +77,35 @@ const xp: InteractionCommand = {
                 )
                 .setName("set")
                 .setDescription("Changes the user's level or XP.")
+        )
+        .addSubcommandGroup(group =>
+            group
+                .addSubcommand(subcmd =>
+                    subcmd
+                        .addIntegerOption(option =>
+                            option
+                                .setMinValue(0)
+                                .setRequired(true)
+                                .setName("level")
+                                .setDescription("The level.")    
+                        )
+                        .setName("level")
+                        .setDescription("Calculates information about levels.")
+                )
+                .addSubcommand(subcmd =>
+                    subcmd
+                        .addIntegerOption(option =>
+                            option
+                                .setMinValue(0)
+                                .setRequired(true)
+                                .setName("xp")
+                                .setDescription("The amount of XP.")    
+                        )
+                        .setName("xp")
+                        .setDescription("Calculates information about XP.")
+                )
+                .setName("calc")
+                .setDescription("Calculates information about XP and levels.")
         )
         .setDMPermission(false)
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
@@ -177,6 +207,67 @@ const xp: InteractionCommand = {
                     })]
                 };
             }
+        } else if (group == "calc") {
+            const cooldown = interaction.settings.leveling.messageCooldown;
+            const minXp = interaction.settings.leveling.messageMin;
+            const maxXp = interaction.settings.leveling.messageMax;
+            const averageXp = 0.5 * (minXp + maxXp);
+
+            if (subcmd == "level") {
+                const level = interaction.options.getInteger("level", true);
+                const xp = levelToXp(level);
+
+                return {
+                    embeds: [client.simpleEmbed({
+                        title: `Level ${level}`,
+                        footer: "These figures do not take into account the XP gained from replies!",
+                        color: EmbedColor.Neutral,
+                    }).setFields(
+                        {
+                            name: "Messages",
+                            value: `**Min**: ${Math.ceil(xp / maxXp)}\n**Average**: ${Math.ceil(xp / averageXp)}\n**Max**: ${Math.ceil(xp / minXp)}`,
+                            inline: true,
+                        },
+                        {
+                            name: "Time",
+                            value: `**Min**: ${durationToString(cooldown * Math.ceil(xp / maxXp))}\n**Average**: ${durationToString(cooldown * Math.ceil(xp / averageXp))}\n**Max**: ${durationToString(cooldown * Math.ceil(xp / minXp))}`,
+                            inline: true,
+                        },
+                        {
+                            name: "Required XP",
+                            value: xp.toString(),
+                            inline: true,
+                        },
+                    )]
+                };
+            } else if (subcmd == "xp") {
+                const xp = interaction.options.getInteger("xp", true);
+                const level = xpToLevel(xp);
+
+                return {
+                    embeds: [client.simpleEmbed({
+                        title: `${xp} XP`,
+                        footer: "These figures do not take into account the XP gained from replies!",
+                        color: EmbedColor.Neutral,
+                    }).setFields(
+                        {
+                            name: "Messages",
+                            value: `**Min**: ${Math.ceil(xp / maxXp)}\n**Average**: ${Math.ceil(xp / averageXp)}\n**Max**: ${Math.ceil(xp / minXp)}`,
+                            inline: true,
+                        },
+                        {
+                            name: "Time",
+                            value: `**Min**: ${durationToString(cooldown * Math.ceil(xp / maxXp))}\n**Average**: ${durationToString(cooldown * Math.ceil(xp / averageXp))}\n**Max**: ${durationToString(cooldown * Math.ceil(xp / minXp))}`,
+                            inline: true,
+                        },
+                        {
+                            name: "Level",
+                            value: `**Current**: ${level}\n**Progress**: ${xp}/${levelToXp(level + 1)} `,
+                            inline: true,
+                        },
+                    )]
+                };
+            }
         }
 
         return { error: "Unknown Error", ephemeral: true };
@@ -184,9 +275,11 @@ const xp: InteractionCommand = {
     help: {
         subcommands: [
             "reset user",
-            "reset role",
+            "reset server",
             "set level",
             "set xp",
+            "calc level",
+            "calc xp",
         ],
         description,
         category: "Management"

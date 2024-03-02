@@ -57,7 +57,7 @@ const tickets: InteractionCommand = {
 
         await interaction.channel?.send({
             embeds: [client.simpleEmbed({
-                title: "Tickets",
+                title: `${interaction.guild}'s Tickets`,
                 description: "Open a ticket to report people or ask questions about the server!",
                 color: EmbedColor.Neutral,
             })],

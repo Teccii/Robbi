@@ -2,6 +2,7 @@ import { ChatInputCommandInteraction, PermissionFlagsBits, SlashCommandBuilder }
 import { InteractionCommand } from "lib/command";
 import { EmbedColor } from "lib/config";
 import { CaseModel } from "models/Case";
+import { durationToString } from "lib/duration";
 
 const description = "Looks up a user's cases.";
 
@@ -61,46 +62,8 @@ const cases: InteractionCommand = {
             let field = `**Moderator**: ${moderator.username} (${moderator.id})\n**Type**: ${_case.caseType}\n**Reason**: ${_case.reason}\n**Issued at**: <t:${issuedAt}:f>`;
 
             if (_case.duration) {
-                const minute = 60;
-                const hour = minute * 60;
-                const day = hour * 24;
-                const month = day * (365 / 12);
-                const year = day * 365;
 
-                const years = Math.floor(_case.duration / year);
-                const months = Math.floor((_case.duration % year) / month);
-                const days = Math.floor(((_case.duration % year) % month) / day);
-                const hours = Math.floor((_case.duration % day) / hour);
-                const minutes = Math.floor((_case.duration % hour) / minute);
-                const seconds = Math.floor(_case.duration % minute);
-
-                let duration = "";
-
-                if (years !== 0) {
-                    duration += `${years}y `;
-                }
-
-                if (months !== 0) {
-                    duration += `${months}M `;
-                }
-
-                if (days !== 0) {
-                    duration += `${days}d `;
-                }
-
-                if (hours !== 0) {
-                    duration += `${hours}hs `;
-                }
-
-                if (minutes !== 0) {
-                    duration += `${minutes}m `;
-                }
-
-                if (seconds !== 0) {
-                    duration += `${seconds}s`;
-                }
-
-                field += `\n**Duration**: ${duration}\n**Expires at**: <t:${_case.expiresAt!}:f>`;
+                field += `\n**Duration**: ${durationToString(_case.duration)}\n**Expires at**: <t:${_case.expiresAt!}:f>`;
             }
 
             embed = embed.addFields({ name: `Case ${_case.caseNumber}`, value: field, inline: true });
