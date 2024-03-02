@@ -5,8 +5,8 @@ import {
     ComponentType,
     Guild
  } from "discord.js";
-import { IPoll, PollModel } from "models/Poll";
 import { EmbedColor } from "./config";
+import { IPoll } from "models/Poll";
 import CustomClient from "./client";
 
 export async function endPoll(client: CustomClient, guild: Guild, poll: IPoll, manual: boolean) {
@@ -81,7 +81,5 @@ export async function endPoll(client: CustomClient, guild: Guild, poll: IPoll, m
                 components: [new ActionRowBuilder<ButtonBuilder>().setComponents(options)]
             });
         }
-
-        await PollModel.deleteOne({ guildId: guild.id, pollId: poll.pollId });
     }
 }

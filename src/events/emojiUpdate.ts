@@ -5,6 +5,7 @@ import { log } from "lib/log";
 import Event from "lib/event";
 import colors from "colors";
 import dayjs from "dayjs";
+import { getEmojiUrl } from "lib/emoji";
 
 const emojiUpdate: Event = {
     name: Events.GuildEmojiUpdate,
@@ -44,11 +45,11 @@ const emojiUpdate: Event = {
                     embeds: [client.simpleEmbed({
                         title: `Emoji :${oldEmoji.name}: updated`,
                         footer: `Emoji ID: ${newEmoji.id} · ${dayjs().format("DD/MM/YYYY HH:mm")}`,
-                        color: EmbedColor.Error
+                        color: EmbedColor.Neutral
                     }).setFields(
                         { name: "Before", value: `**Name**: ${oldEmoji.name}`, inline: true },
                         { name: "After", value: `**Name**: ${newEmoji.name}`, inline: true },
-                    ).setThumbnail(newEmoji.imageURL())]
+                    ).setThumbnail(getEmojiUrl(newEmoji.identifier))]
                 });
             }
         }

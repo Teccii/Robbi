@@ -45,7 +45,7 @@ const stickerUpdate: Event = {
                     embeds: [client.simpleEmbed({
                         title: `Sticker :${oldSticker.name}: updated`,
                         footer: `Sticker ID: ${newSticker.id} · ${dayjs().format("DD/MM/YYYY HH:mm")}`,
-                        color: EmbedColor.Error
+                        color: EmbedColor.Neutral
                     }).setFields(
                         { name: "Before", value: `**Name**: ${oldSticker.name}`, inline: true },
                         { name: "After", value: `**Name**: ${newSticker.name}`, inline: true },

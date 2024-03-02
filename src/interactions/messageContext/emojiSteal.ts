@@ -1,24 +1,7 @@
-import {
-    ApplicationCommandType,
-    ContextMenuCommandBuilder,
-    MessageContextMenuCommandInteraction,
-    parseEmoji
-} from "discord.js";
+import { ApplicationCommandType, ContextMenuCommandBuilder, MessageContextMenuCommandInteraction } from "discord.js";
 import { InteractionCommand } from "lib/command";
 import { EmbedColor } from "lib/config";
-import { extractEmojis } from "lib/emoji";
-
-function getEmojiUrl(emoji: string): string | null {
-    const parsedEmoji = parseEmoji(emoji);
-
-    if (parsedEmoji?.id) {
-        const extension = parsedEmoji.animated ? ".gif" : ".png";
-
-        return `https://cdn.discordapp.com/emojis/${parsedEmoji.id}${extension}`;
-    } else {
-        return null;
-    }
-}
+import { extractEmojis, getEmojiUrl } from "lib/emoji";
 
 const emojiSteal: InteractionCommand = {
     data: new ContextMenuCommandBuilder()

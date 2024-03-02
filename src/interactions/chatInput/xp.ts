@@ -10,7 +10,7 @@ import { InteractionCommand } from "lib/command";
 import { EmbedColor } from "lib/config";
 import { LevelModel } from "models/Level";
 import { levelToXp, setRoles, xpToLevel } from "lib/xp";
-import { durationToString } from "lib/duration";
+import { durationToString } from "lib/time";
 
 export const resetServerConfirmButtonId = "resetServerConfirm";
 

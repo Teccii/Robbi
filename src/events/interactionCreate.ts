@@ -33,6 +33,9 @@ import CustomClient from "lib/client";
 import Event from "lib/event";
 import colors from "colors";
 import dayjs from "dayjs";
+import { remindmeId, remindmeQuestions } from "interactions/chatInput/remindme";
+import { parseDuration } from "lib/time";
+import { ReminderModel } from "models/Reminder";
 
 async function handleDMInteraction(_client: CustomClient, _interaction: Interaction): Promise<any> {
 
@@ -147,11 +150,10 @@ async function handleModal(client: CustomClient, interaction: ModalSubmitInterac
         return;
     }
 
-    if (interaction.customId == ticketGeneralId) {
-        info("modal", `${ticketGeneralId}`);
+    info("modal", interaction.customId);
 
+    if (interaction.customId == ticketGeneralId) {
         const answers = await parseAnswers(client, interaction, ticketGeneralQuestions);
-        
         const success = await createTicket(client, interaction, answers, TicketType.GeneralSupport);
 
         if (!success) {
@@ -161,10 +163,7 @@ async function handleModal(client: CustomClient, interaction: ModalSubmitInterac
             });
         }
     } else if (interaction.customId == ticketReportId) {
-        info("modal", `${ticketReportId}`);
-
         const answers = await parseAnswers(client, interaction, ticketReportQuestions);
-        
         const success = await createTicket(client, interaction, answers, TicketType.ReportPerson);
 
         if (!success) {
@@ -174,16 +173,9 @@ async function handleModal(client: CustomClient, interaction: ModalSubmitInterac
             });
         }
     } else if (interaction.customId.startsWith(wildcardAddId)) {
-        const id = interaction.customId.slice(wildcardAddId.length + 1);
-
-        info("modal", `${wildcardAddId} - ${id}`);
-
         const answers = await parseAnswers(client, interaction, wildcardAddQuestions);
 
-        if (answers.size == 0) {
-            return;
-        }
-
+        const id = interaction.customId.slice(wildcardAddId.length + 1);
         const title = answers.get("title")!;
         const description = answers.get("description")!;
 
@@ -209,8 +201,6 @@ async function handleModal(client: CustomClient, interaction: ModalSubmitInterac
             });
         }
     } else if (interaction.customId == staffApplyModalId) {
-        info("modal", `${staffApplyModalId}`);
-
         const answers = await parseAnswers(client, interaction, staffApplyQuestions);
 
         const reason = answers.get("reason")!;
@@ -257,6 +247,27 @@ async function handleModal(client: CustomClient, interaction: ModalSubmitInterac
                 color: EmbedColor.Error,
             })],
             ephemeral: true
+        });
+    } else if (interaction.customId.startsWith(remindmeId)) {
+        const answers = await parseAnswers(client, interaction, remindmeQuestions);
+
+        const seconds = parseDuration(interaction.customId.slice(remindmeId.length + 1));
+        const reason = answers.get("reason")!;
+        const expiresAt = Math.trunc(Date.now() / 1000) + seconds;
+
+        await new ReminderModel({
+            guildId: interaction.guild.id,
+            userId: interaction.user.id,
+            reason,
+            duration: seconds,
+            expiresAt,
+        }).save();
+
+        await interaction.reply({
+            embeds: [client.simpleEmbed({
+                description: `Your reminder will go off <t:${expiresAt}:R>`,
+                color: EmbedColor.Success,
+            })]
         });
     }
 }

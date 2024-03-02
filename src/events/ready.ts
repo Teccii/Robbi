@@ -3,7 +3,9 @@ import { CaseModel, CaseType } from "models/Case";
 import { SettingsModel } from "models/Settings";
 import { PollModel } from "models/Poll";
 import { endPoll } from "lib/poll";
+import { ReminderModel } from "models/Reminder";
 import { EmbedColor } from "lib/config";
+import { durationToString } from "lib/time";
 import { info, log } from "lib/log";
 import Event from "lib/event";
 import colors from "colors";
@@ -22,7 +24,7 @@ const statuses: {
     },
     {
         name: "customstatus",
-        state: "I love fossil fuels. My dream is to work on an oil rig so that I can drink oil whenever I want",
+        state: "I love fossil fuels. My dream is to work on an oil rig so that I can drink oil whenever I want!",
         type: ActivityType.Custom
     },
     {
@@ -42,7 +44,7 @@ const statuses: {
     },
     {
         name: "customstatus",
-        state: "The grind NEVER starts. I am sleeping",
+        state: "The grind NEVER starts. I am sleeping.",
         type: ActivityType.Custom
     }
 ];
@@ -128,18 +130,43 @@ const ready: Event = {
             }
 
             /*
-            Handles expired mute and ban cases.
+            Handles expired mute and ban cases, polls, and reminders.
             */
             const now = Math.trunc(Date.now() / 1000);
 
             const endedPolls = await PollModel.find({
-                endsAt: { $exists: true, $lt: now },
+                endsAt: { $lt: now },
+            });
+
+            await PollModel.deleteMany({
+                endsAt: { $lt: now },
             });
 
             for (const poll of endedPolls) {
                 const guild = await client.guilds.fetch(poll.guildId);
                 
                 await endPoll(client, guild, poll, false);
+            }
+
+            const expiredReminders = await ReminderModel.find({
+                expiresAt: { $lt: now },
+            });
+
+            await ReminderModel.deleteMany({
+                expiresAt: { $lt: now },
+            });
+
+            for (const reminder of expiredReminders) {
+                const user = await client.users.fetch(reminder.userId);
+
+                await user.send({
+                    embeds: [client.simpleEmbed({
+                        title: "A reminder has expired",
+                        description: `\`\`\`${reminder.reason}\`\`\``,
+                        footer: `This reminder was started ${durationToString(reminder.duration)} ago`,
+                        color: EmbedColor.Neutral,
+                    })]
+                });
             }
 
             const expiredCases = await CaseModel.find({

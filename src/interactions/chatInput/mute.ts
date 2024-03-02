@@ -2,8 +2,8 @@ import { ChatInputCommandInteraction, PermissionFlagsBits, SlashCommandBuilder }
 import { InteractionCommand } from "lib/command";
 import { CaseModel, CaseType } from "models/Case";
 import { EmbedColor } from "lib/config";
+import { parseDuration } from "lib/time";
 import { info } from "lib/log";
-
 import dayjs from "dayjs";
 
 const description = "Times out a person for a given length of time.";
@@ -71,62 +71,13 @@ const mute: InteractionCommand = {
             }
         }
 
-        const duration = interaction.options.getString("length", true);
-        const reason = interaction.options.getString("reason", false) ?? "No reason provided";
         const caseNumber = await client.nextCounter(`${interaction.guild.id}-caseNumber`);
-
-        const now = Math.trunc(Date.now() / 1000); //Discord is dumb and stupid and uses unix seconds instead of unix milliseconds
-        const unit = duration[duration.length - 1];
-        const value = Number(duration.slice(0, duration.length - 1))
-
-        let seconds: number;
-
-        switch (unit) {
-            case "s": {
-                seconds = value;
-                break;
-            }
-
-            case "m": {
-                seconds = value * 60;
-                break;
-            }
-
-            case "h": {
-                seconds = value * 60 * 60;
-                break;
-            }
-
-            case "d": {
-                seconds = value * 60 * 60 * 24;
-                break;
-            }
-
-            case "w": {
-                seconds = value * 60 * 60 * 24 * 7;
-                break;
-            }
-
-            case "M": {
-                seconds = value * 60 * 60 * 24 * 30;
-                break;
-            }
-
-            case "y": {
-                seconds = value * 60 * 60 * 24 * 365;
-                break;
-            }
-
-            default: {
-                seconds = value * 60 * 60; //assume they meant hours
-                break;
-            }
-        }
-
-        const expiresAt = now + seconds;
+        const reason = interaction.options.getString("reason", false) ?? "No reason provided";
+        const seconds = parseDuration(interaction.options.getString("length", true));
+        const expiresAt = Math.trunc(Date.now() / 1000); + seconds;
 
         await member.timeout(seconds * 1000, reason).then(member => {
-            info("mute", `${member.user.username} (${member.id}) muted in ${interaction.guild.name} (${interaction.guild.id}) by ${interaction.user} (${interaction.user.id}).\n\tDuration: ${duration}.\n\tReason: ${reason}`);
+            info("mute", `${member.user.username} (${member.id}) muted in ${interaction.guild.name} (${interaction.guild.id}) by ${interaction.user} (${interaction.user.id}).\n\tDuration: ${seconds}.\n\tReason: ${reason}`);
         });
 
         await new CaseModel({

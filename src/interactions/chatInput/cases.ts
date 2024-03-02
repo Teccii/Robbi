@@ -2,7 +2,7 @@ import { ChatInputCommandInteraction, PermissionFlagsBits, SlashCommandBuilder }
 import { InteractionCommand } from "lib/command";
 import { EmbedColor } from "lib/config";
 import { CaseModel } from "models/Case";
-import { durationToString } from "lib/duration";
+import { durationToString } from "lib/time";
 
 const description = "Looks up a user's cases.";
 

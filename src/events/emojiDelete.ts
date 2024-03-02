@@ -1,6 +1,7 @@
 import { Events, GuildEmoji } from "discord.js";
 import { SettingsModel } from "models/Settings";
 import { EmbedColor } from "lib/config";
+import { getEmojiUrl } from "lib/emoji";
 import { log } from "lib/log";
 import Event from "lib/event";
 import colors from "colors";
@@ -37,21 +38,12 @@ const emojiDelete: Event = {
             const logChannel = await emoji.guild.channels.fetch(id);
 
             if (logChannel && !logChannel.isDMBased() && logChannel.isTextBased() && logChannel.id != emoji.id) {
-                let embed = client.simpleEmbed({
-                    title: `Emoji :${emoji.name}: deleted`,
-                    footer: `Emoji ID: ${emoji.id} · ${dayjs().format("DD/MM/YYYY HH:mm")}`,
-                    color: EmbedColor.Error
-                }).setImage(emoji.imageURL());
-
-                if (emoji.author) {
-                    embed = embed.setAuthor({
-                        name: emoji.author.username,
-                        iconURL: emoji.author.avatarURL() ?? undefined
-                    });
-                }
-                
                 await logChannel.send({
-                    embeds: [embed]
+                    embeds: [client.simpleEmbed({
+                        title: `Emoji :${emoji.name}: deleted`,
+                        footer: `Emoji ID: ${emoji.id} · ${dayjs().format("DD/MM/YYYY HH:mm")}`,
+                        color: EmbedColor.Error
+                    }).setImage(getEmojiUrl(emoji.identifier))]
                 });
             }
         }

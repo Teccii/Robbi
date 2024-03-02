@@ -40,3 +40,42 @@ export function durationToString(seconds: number): string {
 
     return duration;
 }
+
+export function parseDuration(str: string): number {
+    const unit = str[str.length - 1];
+    const value = Number(str.slice(0, str.length - 1))
+
+    switch (unit) {
+        case "s": {
+            return value;
+        }
+    
+        case "m": {
+            return value * 60;
+        }
+    
+        case "h": {
+            return value * 60 * 60;
+        }
+    
+        case "d": {
+            return value * 60 * 60 * 24;
+        }
+    
+        case "w": {
+            return value * 60 * 60 * 24 * 7;
+        }
+    
+        case "M": {
+            return value * 60 * 60 * 24 * 30;
+        }
+    
+        case "y": {
+            return value * 60 * 60 * 24 * 365;
+        }
+    
+        default: {
+            return value; //assume seconds
+        }
+    }
+}
