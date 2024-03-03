@@ -17,7 +17,7 @@ const messageDelete: Event = {
     name: Events.MessageDelete,
     once: false,
     exec: async (client, message: Message) => {
-        if (!message.content || !message.guild || !message.author || message.author.bot) {
+        if (message.content === null || !message.guild || !message.author || message.author.bot) {
             return;
         }
 
@@ -80,7 +80,7 @@ const messageDelete: Event = {
                 }).setFields(
                     { name: "Channel", value: `${message.channel}`, inline: true },
                     { name: "Message Sent", value: `<t:${Math.trunc(message.createdTimestamp / 1000)}:f>`, inline: true },
-                    { name: "Content", value: `\`\`\`${message.content}\`\`\`` },
+                    { name: "Content", value: `\`\`\`${message.content.length == 0 ? "<empty>" : message.content}\`\`\`` },
                 ).setAuthor({
                     name: `${message.author.username}`,
                     iconURL: message.author.avatarURL() ?? undefined

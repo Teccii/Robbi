@@ -4,6 +4,7 @@ import {
     ButtonStyle,
     ChannelType,
     EmbedBuilder,
+    MessageContextMenuCommandInteraction,
     ModalSubmitInteraction,
     PermissionFlagsBits
 } from "discord.js";
@@ -14,11 +15,12 @@ import CustomClient from "./client";
 export enum TicketType {
 	GeneralSupport,
 	ReportPerson,
+    MessageReport,
 }
 
 export async function createTicket(
     client: CustomClient,
-	interaction: ModalSubmitInteraction,
+	interaction: ModalSubmitInteraction | MessageContextMenuCommandInteraction,
 	answers: Map<string, string>,
 	type: TicketType
 ): Promise<boolean> {
@@ -69,6 +71,9 @@ export async function createTicket(
                 permissionOverwrites: overwrites,
             });
 
+            const embeds: EmbedBuilder[] = [];
+            const components: ActionRowBuilder<ButtonBuilder>[] = [];
+
             let embed: EmbedBuilder = client.simpleEmbed({
                 title: `${interaction.user.username} opened a ticket!`,
                 footer: "Please wait while the staff review your ticket",
@@ -78,33 +83,57 @@ export async function createTicket(
             if (type == TicketType.GeneralSupport) {
                 const question = answers.get("question")!;
 
-                embed = embed.addFields({
+                embeds.push(embed.addFields({
                     name: "Question",
                     value: `\`\`\`${question}\`\`\``
-                });
+                }));
             } else if (type == TicketType.ReportPerson) {
                 const member = answers.get("member")!;
                 const reason = answers.get("reason")!;
 
-                embed = embed.addFields({
-                    name: "Member",
-                    value: `\`\`\`${member}\`\`\``
-                }, {
-                    name: "Reason",
-                    value: `\`\`\`${reason}\`\`\``
-                });
+                embeds.push(embed.addFields(
+                    { name: "Member", value: `\`\`\`${member}\`\`\`` },
+                    { name: "Reason", value: `\`\`\`${reason}\`\`\`` },
+                ));
+            } else if (type == TicketType.MessageReport && interaction instanceof MessageContextMenuCommandInteraction) {
+                const content = interaction.targetMessage.content.length == 0 ? "<empty>" : interaction.targetMessage.content;
+                
+                embeds.push(embed.addFields(
+                    { name: "Member", value: `${interaction.targetMessage.author}` },
+                    { name: "Message Content", value: `\`\`\`${content}\`\`\``}
+                ));
+                
+                let i = 1;
+
+                for (const [_, attachment] of interaction.targetMessage.attachments) {
+                    if (attachment.contentType?.includes("image/")) {
+                        embeds.push(client.simpleEmbed({
+                            title: `Attachment ${i}`,
+                            color: EmbedColor.Neutral
+                        }).setImage(attachment.url));
+
+                        i++;
+                    } else if (attachment.contentType?.includes("video/")) {
+                        components.push(new ActionRowBuilder<ButtonBuilder>().addComponents([
+                            new ButtonBuilder()
+                                .setLabel(attachment.name)
+                                .setStyle(ButtonStyle.Link)
+                                .setURL(attachment.url)
+                        ]));
+                    }
+                }
             }
 
-            const components = [new ActionRowBuilder<ButtonBuilder>().setComponents(
+            components.push(new ActionRowBuilder<ButtonBuilder>().setComponents(
                 new ButtonBuilder()
                     .setCustomId(ticketDeleteId)
                     .setEmoji("🗑️")
                     .setLabel("Delete Ticket")
                     .setStyle(ButtonStyle.Danger)
-            )];
+            ));
 
             await channel.send({
-                embeds: [embed],
+                embeds,
                 components,
             });
 

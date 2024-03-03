@@ -18,7 +18,7 @@ const messageUpdate: Event = {
     name: Events.MessageUpdate,
     once: false,
     exec: async (client, oldMessage: Message, newMessage: Message) => {
-        if (!newMessage.content || !newMessage.guild || !newMessage.author || newMessage.author.bot) {
+        if (!newMessage.guild || !newMessage.author || newMessage.author.bot) {
             return;
         }
 
@@ -76,28 +76,81 @@ const messageUpdate: Event = {
             const logChannel = await newMessage.guild.channels.fetch(id);
 
             if (logChannel && !logChannel.isDMBased() && logChannel.isTextBased() && logChannel.id != newMessage.channel.id) {
-                const component = new ActionRowBuilder<ButtonBuilder>().addComponents([
+                const embeds = [client.simpleEmbed({
+                    title: `Message updated`,
+                    footer: `User ID: ${newMessage.author.id} · ${dayjs().format("DD/MM/YYYY HH:mm")}`,
+                    color: EmbedColor.Neutral,
+                }).setFields(
+                    { name: "Message Sent", value: `<t:${Math.trunc(newMessage.createdTimestamp / 1000)}:f>` },
+                    { name: "Old Content", value: `\`\`\`${oldMessage.content.length == 0 ? "<empty>" : oldMessage.content}\`\`\`` },
+                    { name: "New Content", value: `\`\`\`${newMessage.content.length == 0 ? "<empty>" : newMessage.content}\`\`\`` },
+                ).setAuthor({
+                    name: newMessage.author.username,
+                    iconURL: newMessage.author.avatarURL() ?? undefined
+                })];
+                
+                const components = [new ActionRowBuilder<ButtonBuilder>().addComponents([
                     new ButtonBuilder()
                         .setLabel("Message")
                         .setStyle(ButtonStyle.Link)
                         .setURL(newMessage.url)
-                ]);
+                ])];
 
-                await logChannel.send({
-                    embeds: [client.simpleEmbed({
-                        title: `Message updated`,
-                        footer: `User ID: ${newMessage.author.id} · ${dayjs().format("DD/MM/YYYY HH:mm")}`,
-                        color: EmbedColor.Neutral,
-                    }).setFields(
-                        { name: "Message Sent", value: `<t:${Math.trunc(newMessage.createdTimestamp / 1000)}:f>` },
-                        { name: "Old Content", value: `\`\`\`${oldMessage.content}\`\`\`` },
-                        { name: "New Content", value: `\`\`\`${newMessage.content}\`\`\`` },
-                    ).setAuthor({
-                        name: newMessage.author.username,
-                        iconURL: newMessage.author.avatarURL() ?? undefined
-                    })],
-                    components: [component]
-                });
+                if (oldMessage.components != newMessage.components) {
+                    let first = true;
+
+                    for (const [_, attachment] of oldMessage.attachments) {
+                        if (attachment.contentType?.includes("image/")) {
+                            if (first) {
+                                embeds.push(client.simpleEmbed({
+                                    title: "Old Attachments",
+                                    color: EmbedColor.Error
+                                }).setImage(attachment.url));
+                            } else {
+                                embeds.push(client.simpleEmbed({
+                                    color: EmbedColor.Error
+                                }).setImage(attachment.url));
+                            }
+
+                            first = false;
+                        } else if (attachment.contentType?.includes("video/") || attachment.contentType?.includes("audio/")) {
+                            components.push(new ActionRowBuilder<ButtonBuilder>().addComponents([
+                                new ButtonBuilder()
+                                    .setLabel(`Old-${attachment.name}`)
+                                    .setStyle(ButtonStyle.Link)
+                                    .setURL(attachment.url)
+                            ]));
+                        }
+                    }
+
+                    first = true;
+                    
+                    for (const [_, attachment] of newMessage.attachments) {
+                        if (attachment.contentType?.includes("image/")) {
+                            if (first) {
+                                embeds.push(client.simpleEmbed({
+                                    title: "New Attachments",
+                                    color: EmbedColor.Success
+                                }).setImage(attachment.url));
+                            } else {
+                                embeds.push(client.simpleEmbed({
+                                    color: EmbedColor.Success
+                                }).setImage(attachment.url));
+                            }
+
+                            first = false;
+                        } else if (attachment.contentType?.includes("video/") || attachment.contentType?.includes("audio/")) {
+                            components.push(new ActionRowBuilder<ButtonBuilder>().addComponents([
+                                new ButtonBuilder()
+                                    .setLabel(`New-${attachment.name}`)
+                                    .setStyle(ButtonStyle.Link)
+                                    .setURL(attachment.url)
+                            ]));
+                        }
+                    }
+                }
+
+                await logChannel.send({ embeds, components });
             }
         }
     }

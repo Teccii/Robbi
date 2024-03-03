@@ -52,10 +52,74 @@ const ban: InteractionCommand = {
         const member = interaction.options.getMember("member");
 
         if (!member) {
-            return {
-                error: "User is not a member of this guild",
-                ephemeral: true,
-            };
+            //ig just copy paste this here lol
+            const user = interaction.options.getUser("member", true);
+            const caseNumber = await client.nextCounter(`${interaction.guild.id}-caseNumber`);
+            const reason = interaction.options.getString("reason", false) ?? "No reason provided";
+            const duration = interaction.options.getString("length", false) ?? "permanent";
+
+            let dmSuccessful = true;
+
+            if (user.bot) {
+                dmSuccessful = false;
+            }
+
+            if (duration.toLowerCase() == "permanent") {
+                await new CaseModel({
+                    caseNumber,
+                    caseType: CaseType.Ban,
+                    guildId: interaction.guild.id,
+                    moderatorId: interaction.user.id,
+                    targetId: user.id,
+                    reason,
+                }).save();
+
+                const logChannelId = interaction.settings.events.find(v => v.event == "caseCreate")?.channel;
+
+                if (logChannelId) {
+                    const logChannel = await interaction.guild.channels.fetch(logChannelId);
+
+                    if (logChannel && !logChannel.isDMBased() && logChannel.isTextBased()) {
+                        await logChannel.send({
+                            embeds: [client.simpleEmbed({
+                                description: `${member} banned by ${interaction.user}`,
+                                footer: `Case number ${caseNumber} · User ID: ${user.id} · ${dayjs().format("DD/MM/YYYY HH:mm")}`,
+                                color: EmbedColor.Neutral
+                            })]
+                        });
+                    }
+                }
+
+                if (dmSuccessful) {
+                    await user.send({
+                        embeds: [client.simpleEmbed({
+                            title: `You have been permanently banned from ${interaction.guild}`,
+                            color: EmbedColor.Neutral,
+                            footer: `Case number ${caseNumber} · ${dayjs().format("DD/MM/YYYY HH:mm")}`
+                        }).setFields(
+                            { name: "Reason", value: reason, inline: true }
+                        )]
+                    }).catch(_ => {
+                        dmSuccessful = false;
+                    });
+                }
+
+                return {
+                    embeds: [client.simpleEmbed({
+                        description: dmSuccessful
+                            ? `${member} already banned, added another case`
+                            : `:warning: Unable to send messages to this user\n${member} already banned, added another case`,
+                        footer: `Case number ${caseNumber} · ${dayjs().format("DD/MM/YYYY HH:mm")}`,
+                        color: EmbedColor.Neutral
+                    })]
+                }
+            } else {
+                //idk how to handle this case lol
+                return {
+                    error: "User is not a member of this guild.\nUnable to ban for a variable length of time.",
+                    ephemeral: true,
+                };
+            }
         }
 
         if (member.id == interaction.member.id) {
@@ -136,10 +200,9 @@ const ban: InteractionCommand = {
                 })]
             }
         } else {
-            const now = Math.trunc(Date.now() / 1000); //Discord is dumb and stupid and uses unix seconds instead of unix milliseconds
             const seconds = parseDuration(duration);
 
-            const expiresAt = now + seconds;
+            const expiresAt = Math.trunc(Date.now() / 1000); + seconds;
 
             await new CaseModel({
                 caseNumber,
