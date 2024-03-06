@@ -64,7 +64,9 @@ const help: InteractionCommand = {
                 color: EmbedColor.Neutral,
             });
 
-            cmds.forEach((commands, category) => {
+            [...cmds.entries()].sort((a, b) => a[0].localeCompare(b[0])).forEach((value) => {
+                let [category, commands] = value;
+                
                 embed = embed.addFields({
                     name: category,
                     value: commands.map(v => `\`${v}\``).join(", "),

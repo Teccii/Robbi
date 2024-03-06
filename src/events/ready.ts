@@ -11,6 +11,7 @@ import Event from "lib/event";
 import colors from "colors";
 import dayjs from "dayjs";
 import _ from "lodash";
+import { CooldownModel } from "models/Cooldown";
 
 const statuses: {
     name: string,
@@ -147,6 +148,10 @@ const ready: Event = {
                 
                 await endPoll(client, guild, poll, false);
             }
+
+            await CooldownModel.deleteMany({
+                endsAt: { $lt: now },
+            });
 
             const expiredReminders = await ReminderModel.find({
                 expiresAt: { $lt: now },

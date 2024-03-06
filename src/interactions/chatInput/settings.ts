@@ -13,10 +13,10 @@ async function handleLeveling(client: CustomClient, interaction: ChatInputComman
     const announcements = interaction.options.getString("announcements", false);
     const messageMin = interaction.options.getInteger("message-xp-min", false);
     const messageMax = interaction.options.getInteger("message-xp-max", false);
-    const messageCooldown = interaction.options.getInteger("messageCooldown", false);
+    const messageCooldown = interaction.options.getInteger("message-cooldown", false);
     const replyMin = interaction.options.getInteger("reply-xp-min", false);
     const replyMax = interaction.options.getInteger("reply-xp-max", false);
-    const replyCooldown = interaction.options.getInteger("replyCooldown", false);
+    const replyCooldown = interaction.options.getInteger("reply-cooldown", false);
 
     if (removePastRoles != null) {
         client.settings.set(
@@ -40,7 +40,7 @@ async function handleLeveling(client: CustomClient, interaction: ChatInputComman
         );
     }
 
-    if (messageMin) {
+    if (messageMin != null) {
         client.settings.set(
             interaction.guild.id,
             await SettingsModel.findOneAndUpdate(
@@ -51,7 +51,7 @@ async function handleLeveling(client: CustomClient, interaction: ChatInputComman
         );
     }
 
-    if (messageMax) {
+    if (messageMax != null) {
         client.settings.set(
             interaction.guild.id,
             await SettingsModel.findOneAndUpdate(
@@ -62,7 +62,7 @@ async function handleLeveling(client: CustomClient, interaction: ChatInputComman
         );
     }
 
-    if (messageCooldown) {
+    if (messageCooldown != null) {
         client.settings.set(
             interaction.guild.id,
             await SettingsModel.findOneAndUpdate(
@@ -73,7 +73,7 @@ async function handleLeveling(client: CustomClient, interaction: ChatInputComman
         );
     }
 
-    if (replyMin) {
+    if (replyMin != null) {
         client.settings.set(
             interaction.guild.id,
             await SettingsModel.findOneAndUpdate(
@@ -84,7 +84,7 @@ async function handleLeveling(client: CustomClient, interaction: ChatInputComman
         );
     }
 
-    if (replyMax) {
+    if (replyMax != null) {
         client.settings.set(
             interaction.guild.id,
             await SettingsModel.findOneAndUpdate(
@@ -95,7 +95,7 @@ async function handleLeveling(client: CustomClient, interaction: ChatInputComman
         );
     }
 
-    if (replyCooldown) {
+    if (replyCooldown != null) {
         client.settings.set(
             interaction.guild.id,
             await SettingsModel.findOneAndUpdate(
