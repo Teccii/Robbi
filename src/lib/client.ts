@@ -11,17 +11,16 @@ import { AutocompleteOptionGenerators, InteractionCommand } from "./command";
 import ClientConfig, { EmbedColor } from "./config";
 import { ISettings } from "models/Settings";
 import { CounterModel } from "models/Counter";
-import { CooldownHandler } from "./cooldownHandler";
 import { readdirSync } from "fs";
 import { readdir } from "fs/promises";
 import { join } from "path";
 import { error, load } from "lib/log";
 import Event from "./event";
+import { CooldownModel, ICooldown } from "models/Cooldown";
 
 export default class CustomClient extends Client {
   commands: Collection<string, InteractionCommand>;
   autocompleteOptions: Collection<string, AutocompleteOptionGenerators>;
-  cooldownHandler: CooldownHandler;
   settings: Collection<string, ISettings>;
   config: ClientConfig;
 
@@ -30,7 +29,6 @@ export default class CustomClient extends Client {
 
     this.commands = new Collection();
     this.autocompleteOptions = new Collection();
-    this.cooldownHandler = new CooldownHandler();
     this.settings = new Collection();
     this.config = config;
   }
@@ -105,6 +103,22 @@ export default class CustomClient extends Client {
         { $inc: { index: 1 } },
         { upsert: true, setDefaultsOnInsert: true, new: true }
     )).index;
+  }
+
+  async getCooldown(id: string): Promise<ICooldown | null> {
+    return CooldownModel.findOne({ _id: id });
+  }
+
+  async addCooldown(id: string, duration: number): Promise<ICooldown> {
+    return await new CooldownModel({
+      _id: id,
+      duration,
+      endsAt: Math.trunc(Date.now() / 1000) + duration
+    }).save();
+  }
+
+  async removeCooldown(id: string) {
+    await CooldownModel.deleteOne({ _id: id });
   }
 
   loadEvents() {

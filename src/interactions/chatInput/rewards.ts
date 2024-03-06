@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, Role, SlashCommandBuilder } from "discord.js";
+import { ChatInputCommandInteraction, PermissionFlagsBits, Role, SlashCommandBuilder } from "discord.js";
 import { InteractionCommand } from "lib/command";
 import { SettingsModel } from "models/Settings";
 import { EmbedColor } from "lib/config";
@@ -57,6 +57,8 @@ const rewards: InteractionCommand = {
                 .setName("list")
                 .setDescription("Lists the current rewards.")
         )
+        .setDMPermission(false)
+        .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
         .setName("rewards")
         .setDescription(description),
     exec: async (client, interaction) => {
@@ -64,7 +66,15 @@ const rewards: InteractionCommand = {
             return { error: "Invalid Interaction Type" };
         }
 
+        const permLevel = client.permLevel(interaction.member);
         const subcmd = interaction.options.getSubcommand();
+        
+        const adminOnly = ["add", "remove"];
+        const staffOnly = ["get", "list"];
+
+        if ((permLevel < 2 && adminOnly.includes(subcmd)) || (permLevel < 1 && staffOnly.includes(subcmd))) {
+			return { error: "Insufficient permissions", ephemeral: true };
+		}
 
         if (subcmd == "add") {
             const level = interaction.options.getInteger("level", true);

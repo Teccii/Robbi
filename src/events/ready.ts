@@ -163,7 +163,7 @@ const ready: Event = {
                     embeds: [client.simpleEmbed({
                         title: "A reminder has expired",
                         description: `\`\`\`${reminder.reason}\`\`\``,
-                        footer: `This reminder was started ${durationToString(reminder.duration)} ago`,
+                        footer: `This reminder was started ${durationToString(reminder.duration).trim()} ago`,
                         color: EmbedColor.Neutral,
                     })]
                 });

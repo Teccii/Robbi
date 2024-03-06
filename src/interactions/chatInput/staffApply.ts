@@ -31,21 +31,21 @@ const staffApply: InteractionCommand = {
         }
 
         const cooldownId = `${interaction.user.id}-staffApply`;
+        const cooldown = await client.getCooldown(cooldownId);
 
-        if (!client.cooldownHandler.has(cooldownId)) {
+        if (cooldown === null) {
             const modal = new ModalBuilder()
                 .setCustomId(staffApplyModalId)
                 .setTitle(`Staff Application for ${interaction.guild.name}`)
                 .setComponents(toActionRows(staffApplyQuestions));
 
             await interaction.showModal(modal);
-
-            client.cooldownHandler.set(cooldownId, 7 * 24 * 60 * 60 * 1000);
+            await client.addCooldown(cooldownId, 7 * 24 * 60 * 60);
 
             return {};
         } else {
             return {
-                error: `You can apply again <t:${client.cooldownHandler.expires(cooldownId)}:R>`,
+                error: `You can apply again <t:${cooldown.endsAt}:R>`,
                 ephemeral: true
             };
         }

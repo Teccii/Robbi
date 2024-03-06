@@ -5,6 +5,8 @@ import { handleNewLevel, xpToLevel } from "lib/xp";
 import { log } from "lib/log";
 import Event from "lib/event";
 import colors from "colors";
+import { AFKModel } from "models/AFK";
+import { EmbedColor } from "lib/config";
 
 const messageCreate: Event = {
     name: Events.MessageCreate,
@@ -34,8 +36,8 @@ const messageCreate: Event = {
 
             message.settings = s;
         }
-
-        if (!client.cooldownHandler.has(`${message.author.id}-msgXP`)) {
+        
+        if (await client.getCooldown(`${message.author.id}-msgXP`) === null) {
             const messageMin = message.settings.leveling.messageMin;
             const messageMax = message.settings.leveling.messageMax;
             const msgXp = Math.floor(messageMin + Math.random() * (messageMax - messageMin));
@@ -59,13 +61,39 @@ const messageCreate: Event = {
                 );
             }
 
-            client.cooldownHandler.set(`${message.author.id}-msgXP`, message.settings.leveling.messageCooldown * 1000);
+            await client.addCooldown(`${message.author.id}-msgXP`, message.settings.leveling.messageCooldown);
         }
 
+        await AFKModel.deleteOne({
+            guildId: message.guild.id,
+            userId: message.author.id,
+        });
+
+        for (const [_, user] of message.mentions.users) {
+            const afk = await AFKModel.findOne({
+                guildId: message.guild.id,
+                userId: user.id
+            });
+
+            if (afk) {
+                await message.reply({
+                    embeds: [client.simpleEmbed({
+                        description: `${user} is AFK: \`${afk.reason}\``,
+                        color: EmbedColor.Neutral,
+                    })]
+                });
+            }
+        }
+        
         if (message.reference) {
             const repliedMessage = await message.fetchReference();
 
-            if (!repliedMessage.author.bot && repliedMessage.guild && repliedMessage.author.id != message.author.id && !client.cooldownHandler.has(`${repliedMessage.author.id}-replyXP`)) {
+            if (
+                !repliedMessage.author.bot
+                && repliedMessage.guild
+                && repliedMessage.author.id != message.author.id
+                && await client.getCooldown(`${repliedMessage.author.id}-replyXP`) === null
+            ) {
                 const replyMin = message.settings.leveling.replyMin;
                 const replyMax = message.settings.leveling.replyMax;
                 const replyXp = Math.floor(replyMin + Math.random() * (replyMax - replyMin));
@@ -89,7 +117,7 @@ const messageCreate: Event = {
                     );
                 }
 
-                client.cooldownHandler.set(`${repliedMessage.author.id}-replyXP`, message.settings.leveling.replyCooldown * 1000);
+                await client.addCooldown(`${repliedMessage.author.id}-replyXP`, message.settings.leveling.replyCooldown);
             }
         }
     }

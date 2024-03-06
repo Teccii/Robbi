@@ -26,7 +26,6 @@ export interface ISettings extends Document {
         replyCooldown: number;
     };
     staffRoles: {
-        helper?: string;
         moderator?: string;
         admin?: string;
     };
@@ -74,7 +73,6 @@ const settingsSchema = new Schema<ISettings>(
             replyCooldown: { type: Number, default: 45 },
         },
         staffRoles: {
-            helper: String,
             moderator: String,
             admin: String,
         },

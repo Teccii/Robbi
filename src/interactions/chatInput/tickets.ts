@@ -66,7 +66,7 @@ const tickets: InteractionCommand = {
 
         return {
             embeds: [client.simpleEmbed({
-                description: "Embed sent",
+                description: "Embed sent!",
                 color: EmbedColor.Success,
             })],
             ephemeral: true

@@ -15,17 +15,6 @@ const roles: InteractionCommand = {
                             option
                                 .setRequired(true)
                                 .setName("role")
-                                .setDescription("The new helper role.")    
-                        )
-                        .setName("helper")
-                        .setDescription("Sets the helper role of this guild.")
-                )
-                .addSubcommand(subcmd =>
-                    subcmd
-                        .addRoleOption(option =>
-                            option
-                                .setRequired(true)
-                                .setName("role")
                                 .setDescription("The new moderator role.")    
                         )
                         .setName("moderator")
@@ -47,11 +36,6 @@ const roles: InteractionCommand = {
         )
         .addSubcommandGroup(group =>
             group
-                .addSubcommand(subcmd =>
-                    subcmd
-                        .setName("helper")
-                        .setDescription("Unsets the helper role of this guild.")
-                )
                 .addSubcommand(subcmd =>
                     subcmd
                         .setName("moderator")
@@ -80,23 +64,7 @@ const roles: InteractionCommand = {
         if (group == "set") {
             const role = interaction.options.getRole("role", true);
 
-            if (subcmd == "helper") {
-                client.settings.set(
-                    interaction.guild.id,
-                    await SettingsModel.findOneAndUpdate(
-                        { _id: interaction.guild.id },
-                        { "staffRoles.helper": role.id, toUpdate: true },
-                        { upsert: true, setDefaultsOnInsert: true, new: true }
-                    )
-                );
-
-                return {
-                    embeds: [client.simpleEmbed({
-                        description: `Successfully assigned Helper to ${role}`,
-                        color: EmbedColor.Success,
-                    })]
-                };
-            } else if (subcmd == "moderator") {
+            if (subcmd == "moderator") {
                 client.settings.set(
                     interaction.guild.id,
                     await SettingsModel.findOneAndUpdate(
@@ -130,23 +98,7 @@ const roles: InteractionCommand = {
                 };
             }
         } else if (group == "unset") {
-            if (subcmd == "helper") {
-                client.settings.set(
-                    interaction.guild.id,
-                    await SettingsModel.findOneAndUpdate(
-                        { _id: interaction.guild.id },
-                        { $unset: { "staffRoles.helper": "" }, toUpdate: true },
-                        { upsert: true, setDefaultsOnInsert: true, new: true }
-                    )
-                );
-
-                return {
-                    embeds: [client.simpleEmbed({
-                        description: `Successfully unassigned Helper`,
-                        color: EmbedColor.Success,
-                    })]
-                };
-            } else if (subcmd == "moderator") {
+            if (subcmd == "moderator") {
                 client.settings.set(
                     interaction.guild.id,
                     await SettingsModel.findOneAndUpdate(

@@ -3,7 +3,7 @@ import { InteractionCommand } from "lib/command";
 
 const description = "Makes the bot send a message.";
 
-const ping: InteractionCommand = {
+const say: InteractionCommand = {
     data: new SlashCommandBuilder()
         .addStringOption(option =>
             option
@@ -31,4 +31,4 @@ const ping: InteractionCommand = {
     }
 };
 
-export default ping;
+export default say;

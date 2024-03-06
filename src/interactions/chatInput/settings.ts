@@ -1,4 +1,4 @@
-import { ChannelType, ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
+import { ChannelType, ChatInputCommandInteraction, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import { CustomInteractionReplyOptions, InteractionCommand } from "lib/command";
 import { AnnouncementType, SettingsModel } from "models/Settings";
 import { EmbedColor } from "lib/config";
@@ -370,11 +370,11 @@ const settings: InteractionCommand = {
                             { name: "Role Delete", value: "roleDelete" },
                             { name: "Role Update", value: "roleUpdate" },
                             { name: "All Role Events", value: "roleAll" },
-                            { name: "Case Create", value: "caseCreate" },
                             { name: "Expression Create", value: "expressionCreate" },
                             { name: "Expression Delete", value: "expressionDelete" },
                             { name: "Expression Update", value: "expressionUpdate" },
                             { name: "All Expression Events", value: "expressionAll" },
+                            { name: "Case Create", value: "caseCreate" },
                             { name: "Case Delete", value: "caseDelete" },
                             { name: "Case Update", value: "caseUpdate" },
                             { name: "Case Expire", value: "caseExpire" },
@@ -395,6 +395,8 @@ const settings: InteractionCommand = {
                 .setName("logs")
                 .setDescription("Manages the channels where events are logged.")
         )
+        .setDMPermission(false)
+        .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
         .setName("settings")
         .setDescription(description),
     exec: async (client, interaction) => {

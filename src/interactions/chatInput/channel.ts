@@ -1,4 +1,4 @@
-import {  ChannelType, ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
+import {  ChannelType, ChatInputCommandInteraction, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import { InteractionCommand } from "lib/command";
 import { EmbedColor } from "lib/config";
 
@@ -61,6 +61,8 @@ const channel: InteractionCommand = {
                 .setName("hide")
                 .setDescription("Makes a channel invisible to a user.")    
         )
+        .setDMPermission(false)
+        .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
         .setName("channel")
         .setDescription(description),
     exec: async (client, interaction) => {
