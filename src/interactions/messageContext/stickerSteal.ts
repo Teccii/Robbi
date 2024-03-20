@@ -1,39 +1,31 @@
 import { ApplicationCommandType, ContextMenuCommandBuilder, MessageContextMenuCommandInteraction } from "discord.js";
 import { InteractionCommand } from "lib/command";
 import { EmbedColor } from "lib/config";
-import { extractEmojis, getEmojiUrl } from "lib/emoji";
 
-const emojiSteal: InteractionCommand = {
+const stickerSteal: InteractionCommand = {
     data: new ContextMenuCommandBuilder()
-        .setName("Steal Emoji")
+        .setName("Steal Sticker")
         .setType(ApplicationCommandType.Message),
     exec: async (client, interaction) => {
         if (!(interaction instanceof MessageContextMenuCommandInteraction)) {
             return { error: "Invalid Interaction Type" };
         }
 
-        const emojis = extractEmojis(interaction.targetMessage.content);
+        const sticker = interaction.targetMessage.stickers.first();
 
-        if (emojis) {
-            let embeds = [client.simpleEmbed({
-                title: `Found ${emojis.length} emoji(s)!`,
-                color: EmbedColor.Success,
-            }).setImage(getEmojiUrl(emojis[0]))];
-
-            for (const emoji of emojis.slice(1)) {
-                const url = getEmojiUrl(emoji);
-
-                if (url) {
-                    embeds.push(client.simpleEmbed({ color: EmbedColor.Success }).setImage(url));
-                }
-            }
-
+        if (sticker) {
+            
             let dmSuccessful = true;
 
             if (interaction.user.bot) {
                 dmSuccessful = false;
             } else {
-                await interaction.user.send({ embeds }).catch(_ => {
+                await interaction.user.send({
+                    embeds: [client.simpleEmbed({
+                        title: `Found a sticker!`,
+                        color: EmbedColor.Success,
+                    }).setImage(`https://media.discordapp.net/stickers/${sticker.id}.webp`)]
+                }).catch(_ => {
                     dmSuccessful = false;
                 });
             }
@@ -41,7 +33,7 @@ const emojiSteal: InteractionCommand = {
             if (dmSuccessful) {
                 return {
                     embeds: [client.simpleEmbed({
-                        description: "Robbi has sent you the emoji(s)",
+                        description: "Robbi has sent you the sticker",
                         color: EmbedColor.Success,
                     })],
                     ephemeral: true
@@ -50,14 +42,14 @@ const emojiSteal: InteractionCommand = {
                 return { error: "Unable to send messages to this user", ephemeral: true };
             }
         } else {
-            return { error: "That message does not contain any emojis", ephemeral: true };
+            return { error: "That message does not contain a sticker", ephemeral: true };
         }
     },
     help: {
         subcommands: [],
-        description: "Rips emojis from a message.",
+        description: "Rips the sticker from a message.",
         category: "Miscellaneous"
     }
 };
 
-export default emojiSteal;
+export default stickerSteal;

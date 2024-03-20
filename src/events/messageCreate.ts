@@ -70,6 +70,20 @@ const messageCreate: Event = {
         });
 
         for (const [_, user] of message.mentions.users) {
+            if (user.id == client.user!.id) {
+                switch (message.content.replaceAll(`${user}`, "").trim().toLowerCase()) {
+                    case "good bot": {
+                        await message.reply("uwu");
+                        break;
+                    }
+                    
+                    case "bad bot": {
+                        await message.reply("ùwú");
+                        break;
+                    }
+                }
+            }
+
             const afk = await AFKModel.findOne({
                 guildId: message.guild.id,
                 userId: user.id
