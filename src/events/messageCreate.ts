@@ -9,8 +9,11 @@ import { AFKModel } from "models/AFK";
 import { EmbedColor } from "lib/config";
 
 function filterMessage(text: string): string {
+    text = text.trim();
+    text = text.replace("Robbi:", "");
     text = text.replaceAll("@everyone", "");
     text = text.replaceAll("@here", "");
+    
 
     return text;
 }
