@@ -120,6 +120,7 @@ const messageCreate: Event = {
                 await client.addCooldown(`${repliedMessage.author.id}-replyXP`, message.settings.leveling.replyCooldown);
             }
         }
+        
         if (message.mentions.has(client.user!.id)) {
             const robbisResponse = await client.aiChat.sendMessage(message.cleanContent);
             const text = robbisResponse.response.candidates[0].content.parts[0].text;

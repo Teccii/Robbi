@@ -5,6 +5,8 @@ import Event from "lib/event";
 import colors from "colors";
 import dayjs from "dayjs";
 import { EmbedColor } from "lib/config";
+import { LevelModel } from "models/Level";
+import { setRoles } from "lib/xp";
 
 const guildMemberAdd: Event = {
     name: Events.GuildMemberAdd,
@@ -29,6 +31,15 @@ const guildMemberAdd: Event = {
             const s = client.settings.get(member.guild.id)!;
 
             member.settings = s;
+        }
+
+        const leveling = await LevelModel.findOne({
+            guildId:member.guild.id,
+            userId: member.id
+        });
+
+        if (leveling) {
+            await setRoles(member, leveling.cachedLevel, member.settings);
         }
 
         const logChannelIds = member.settings.events.filter(v => v.event == "guildMemberAdd").map(v => v.channel);
