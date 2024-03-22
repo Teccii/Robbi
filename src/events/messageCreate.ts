@@ -8,6 +8,13 @@ import colors from "colors";
 import { AFKModel } from "models/AFK";
 import { EmbedColor } from "lib/config";
 
+function filterMessage(text: string): string {
+    text = text.replaceAll("@everyone", "");
+    text = text.replaceAll("@here", "");
+
+    return text;
+}
+
 const messageCreate: Event = {
     name: Events.MessageCreate,
     once: false,
@@ -122,10 +129,21 @@ const messageCreate: Event = {
         }
         
         if (message.mentions.has(client.user!.id)) {
-            const robbisResponse = await client.aiChat.sendMessage(message.cleanContent);
-            const text = robbisResponse.response.candidates[0].content.parts[0].text;
-            if (typeof text == "string") {
-                message.reply(text);
+            const robbisResponse = await client.aiChat.sendMessage(`${message.author.username}:\n${message.cleanContent}`);
+            const candidates = robbisResponse.response.candidates;
+
+            if (candidates.length == 0) {
+                return;
+            }
+
+            if (candidates[0].content.parts.length == 0) {
+                return;
+            }
+
+            const text = candidates[0].content.parts[0].text;
+
+            if (text !== undefined) {
+                message.reply(filterMessage(text));
             } else {
                 message.reply("sowwy i don't know how to respond to this...");
             }
