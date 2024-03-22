@@ -7,13 +7,13 @@ import Event from "lib/event";
 import colors from "colors";
 import { AFKModel } from "models/AFK";
 import { EmbedColor } from "lib/config";
+import { Part } from "@google-cloud/vertexai";
 
 function filterMessage(text: string): string {
     text = text.trim();
     text = text.replace("Robbi:", "");
     text = text.replaceAll("@everyone", "");
     text = text.replaceAll("@here", "");
-    
 
     return text;
 }
@@ -132,23 +132,22 @@ const messageCreate: Event = {
         }
         
         if (message.mentions.has(client.user!.id)) {
-            const robbisResponse = await client.aiChat.sendMessage(`${message.author.username}:\n${message.cleanContent}`);
-            const candidates = robbisResponse.response.candidates;
+            try {
+                const response = (await client.aiChat.sendMessage(`${message.author.username}:\n${message.cleanContent}`)).response;
+                const candidate = response.candidates[0];
+                const parts = candidate.content.parts as Array<Part>;
 
-            if (candidates.length == 0) {
-                return;
-            }
+                let text = "";
 
-            if (candidates[0].content.parts.length == 0) {
-                return;
-            }
+                for (const part of parts) {
+                    if (part.text !== undefined) {
+                        text += part.text;
+                    }
+                }
 
-            const text = candidates[0].content.parts[0].text;
-
-            if (text !== undefined) {
-                message.reply(filterMessage(text));
-            } else {
-                message.reply("sowwy i don't know how to respond to this...");
+                await message.reply(filterMessage(text));
+            } catch (e) {
+                await message.reply(`sowwy i don't know how to respond to this...\n${e}`);
             }
         }
     }
