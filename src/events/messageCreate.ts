@@ -11,7 +11,6 @@ import { Part } from "@google-cloud/vertexai";
 
 function filterMessage(text: string): string {
     text = text.trim();
-    text = text.replace("Robbi:", "");
     text = text.replaceAll("@everyone", "");
     text = text.replaceAll("@here", "");
 
@@ -130,9 +129,13 @@ const messageCreate: Event = {
                 await client.addCooldown(`${repliedMessage.author.id}-replyXP`, message.settings.leveling.replyCooldown);
             }
         }
+
+        const aiChannel = message.settings.aiChannel;
         
-        if (message.mentions.has(client.user!.id)) {
+        if (message.mentions.has(client.user!.id) && (aiChannel === undefined || aiChannel === message.channel.id)) {
             try {
+                message.channel.sendTyping();
+
                 const response = (await client.aiChat.sendMessage(`${message.author.username}:\n${message.cleanContent}`)).response;
                 const candidate = response.candidates[0];
                 const parts = candidate.content.parts as Array<Part>;
@@ -145,9 +148,15 @@ const messageCreate: Event = {
                     }
                 }
 
-                await message.reply(filterMessage(text));
+                if (text.length <= 2000) {
+                    setTimeout(() => {
+                        message.reply(filterMessage(text));
+                    }, 2000);
+                } else {
+                    message.reply(`sowwy i have a response which this margin is too narrow to contain...`);
+                }
             } catch (e) {
-                await message.reply(`sowwy i don't know how to respond to this...\n${e}`);
+                message.reply(`sowwy i don't know how to respond to this...\n${e}`);
             }
         }
     }

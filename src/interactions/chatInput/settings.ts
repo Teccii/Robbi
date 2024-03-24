@@ -167,6 +167,32 @@ async function handleStaffApply(client: CustomClient, interaction: ChatInputComm
     };
 }
 
+async function handleChatAI(client: CustomClient, interaction: ChatInputCommandInteraction): Promise<CustomInteractionReplyOptions> {
+    if (!interaction.guild) {
+        return { error: "Missing Guild", ephemeral: true };
+    }
+    
+    const channel = interaction.options.getChannel("channel", false, [ChannelType.GuildText]);
+
+    if (channel) {
+        client.settings.set(
+            interaction.guild.id,
+            await SettingsModel.findOneAndUpdate(
+                { _id: interaction.guild.id },
+                { aiChannel: channel.id, toUpdate: true },
+                { upsert: true, setDefaultsOnInsert: true, new: true }
+            )
+        );
+    }
+
+    return {
+        embeds: [client.simpleEmbed({
+            description: "Updated AI settings",
+            color: EmbedColor.Success,
+        })]
+    };
+}
+
 async function handleLogs(client: CustomClient, interaction: ChatInputCommandInteraction): Promise<CustomInteractionReplyOptions> {
     if (!interaction.guild) {
         return { error: "Missing Guild", ephemeral: true };
@@ -352,6 +378,18 @@ const settings: InteractionCommand = {
         )
         .addSubcommand(subcmd =>
             subcmd
+                .addChannelOption(option =>
+                    option
+                        .addChannelTypes(ChannelType.GuildText)
+                        .setRequired(false)
+                        .setName("channel")
+                        .setDescription("The channel for the chat AI. If left empty, available everywhere.")    
+                )
+                .setName("ai")
+                .setDescription("Manages the settings of the chat AI.")
+        )
+        .addSubcommand(subcmd =>
+            subcmd
                 .addStringOption(option =>
                     option
                         .setChoices(
@@ -416,6 +454,8 @@ const settings: InteractionCommand = {
                 return await handleTickets(client, interaction);
             } else if (subcmd == "staff-apply") {
                 return await handleStaffApply(client, interaction);
+            } else if (subcmd == "ai") {
+                return await handleChatAI(client, interaction);
             } else if (subcmd == "logs") {
                 return await handleLogs(client, interaction);
             }
