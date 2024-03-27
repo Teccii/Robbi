@@ -45,6 +45,34 @@ const ai: InteractionCommand = {
         )
         .addSubcommand(cmd =>
             cmd
+                .addBooleanOption(option =>
+                    option
+                        .setRequired(true)
+                        .setName("value")
+                        .setDescription("The new Debug Mode value.")
+                )
+                .setName("debug")
+                .setDescription("Toggles Debug Mode on/off for the AI for this guild.")    
+        )
+        .addSubcommand(cmd =>
+            cmd
+                .addStringOption(option =>
+                    option
+                        .setChoices(
+                            { name: "None", value: "None" },
+                            { name: "Low", value: "Low" },
+                            { name: "Medium", value: "Medium"},
+                            { name: "High", value: "High" },
+                        )
+                        .setRequired(true)
+                        .setName("value")
+                        .setDescription("The new Content Filter level.")    
+                )
+                .setName("filter")
+                .setDescription("Manages the Content Filter of the AI for this guild.")    
+        )
+        .addSubcommand(cmd =>
+            cmd
                 .addNumberOption(option =>
                     option
                         .setMinValue(0.0)
@@ -148,6 +176,42 @@ const ai: InteractionCommand = {
             } else {
                 return { error: "Failed to reset the AI" };
             }
+        }  else if (subcmd == "debug") {
+            const value = interaction.options.getBoolean("value", true);
+
+            client.settings.set(
+                interaction.guild.id,
+                await SettingsModel.findOneAndUpdate(
+                    { _id: interaction.guild.id },
+                    { "ai.debug": value, toUpdate: true },
+                    { upsert: true, setDefaultsOnInsert: true, new: true }
+                )
+            );
+
+            return {
+                embeds: [client.simpleEmbed({
+                    description: "Updated AI settings",
+                    color: EmbedColor.Success,
+                })]
+            };
+        } else if (subcmd == "filter") {
+            const value = interaction.options.getString("value", true);
+        
+            client.settings.set(
+                interaction.guild.id,
+                await SettingsModel.findOneAndUpdate(
+                    { _id: interaction.guild.id },
+                    { "ai.contentFilter": value, toUpdate: true },
+                    { upsert: true, setDefaultsOnInsert: true, new: true }
+                )
+            );
+
+            return {
+                embeds: [client.simpleEmbed({
+                    description: "Updated AI settings",
+                    color: EmbedColor.Success,
+                })]
+            };
         } else if (subcmd == "temperature") {
             const value = interaction.options.getNumber("value", true);
 

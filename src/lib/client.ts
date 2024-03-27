@@ -17,7 +17,7 @@ import { join } from "path";
 import { error, load } from "lib/log";
 import Event from "./event";
 import { CooldownModel, ICooldown } from "models/Cooldown";
-import { ChatSession, GenerativeModel, HarmBlockThreshold, HarmCategory, VertexAI } from "@google-cloud/vertexai";
+import {ChatSession, GenerativeModel, HarmBlockThreshold, HarmCategory, VertexAI } from "@google-cloud/vertexai";
 import credentials from "../../gemini-credentials.json"
 
 export default class CustomClient extends Client {
@@ -242,7 +242,7 @@ export default class CustomClient extends Client {
         break;
       }
 
-      case ContentFilter.None: {
+      case ContentFilter.High: {
         threshold = HarmBlockThreshold.BLOCK_LOW_AND_ABOVE;
         break;
       }
@@ -253,7 +253,8 @@ export default class CustomClient extends Client {
         { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold },
         { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold },
         { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold },
-        { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold }
+        { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold },
+        { category: HarmCategory.HARM_CATEGORY_UNSPECIFIED, threshold },
       ],
       generation_config: {
         temperature: settings.ai.temperature,

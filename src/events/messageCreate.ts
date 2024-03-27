@@ -1,4 +1,4 @@
-import { Events, Message } from "discord.js";
+import { EmbedBuilder, Events, Message } from "discord.js";
 import { SettingsModel } from "models/Settings";
 import { LevelModel } from "models/Level";
 import { handleNewLevel, xpToLevel } from "lib/xp";
@@ -7,7 +7,8 @@ import Event from "lib/event";
 import colors from "colors";
 import { AFKModel } from "models/AFK";
 import { EmbedColor } from "lib/config";
-import { Part } from "@google-cloud/vertexai";
+import { GenerateContentCandidate } from "@google-cloud/vertexai";
+import CustomClient from "lib/client";
 
 function filterMessage(text: string): string {
     text = text.trim();
@@ -15,6 +16,42 @@ function filterMessage(text: string): string {
     text = text.replaceAll("@here", "");
 
     return text;
+}
+
+function getDebugEmbed(client: CustomClient, candidate: GenerateContentCandidate): EmbedBuilder {
+    let embed = client.simpleEmbed({
+        title: "Debug Data",
+        color: EmbedColor.Error
+    });
+
+    if (candidate.finishMessage) {
+        embed = embed.addFields({
+            name: "Finish Message",
+            value: candidate.finishMessage
+        });
+    }
+
+    if (candidate.finishReason) {
+        embed = embed.addFields({
+            name: "Finish Reason",
+            value: candidate.finishReason
+        });
+    }
+
+    if (candidate.safetyRatings) {
+        let text = "";
+
+        for (const rating of candidate.safetyRatings) {
+            text += `**${rating.category}**: ${rating.probability}\n`;
+        }
+
+        embed = embed.addFields({
+            name: "Safety Ratings",
+            value: text,
+        });
+    }
+
+    return embed;
 }
 
 const messageCreate: Event = {
@@ -144,11 +181,10 @@ const messageCreate: Event = {
 
                 const response = (await chat.sendMessage(`${message.author.username}:\n${message.cleanContent}`)).response;
                 const candidate = response.candidates[0];
-                const parts = candidate.content.parts as Array<Part>;
 
                 let text = "";
 
-                for (const part of parts) {
+                for (const part of candidate.content.parts) {
                     if (part.text !== undefined) {
                         text += part.text;
                     }
@@ -156,7 +192,17 @@ const messageCreate: Event = {
 
                 if (text.length <= 2000) {
                     setTimeout(() => {
-                        message.reply(filterMessage(text));
+                        if (!message.settings.ai.debug) {
+                            message.reply(filterMessage(text));
+                        } else {
+                            message.reply({
+                                embeds: [client.simpleEmbed({
+                                    title: "Response",
+                                    description: filterMessage(text),
+                                    color: EmbedColor.Success,
+                                }), getDebugEmbed(client, candidate)]
+                            });
+                        }
                     }, 2000);
                 } else {
                     message.reply(`Sorry, I have a truly marvelous response which this margin is too narrow to contain...`);

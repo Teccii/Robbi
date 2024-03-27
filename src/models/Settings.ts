@@ -23,6 +23,7 @@ export interface ISettings extends Document {
         contentFilter: ContentFilter;
         temperature: number;
         prompt: string;
+        debug: boolean;
     }
     leveling: {
         levelRoles: {
@@ -76,6 +77,7 @@ const settingsSchema = new Schema<ISettings>(
             contentFilter: { type: ContentFilter, default: ContentFilter.High },
             temperature: { type: Number, default: 1.0 },
             prompt: { type: String, default: "" },
+            debug: { type: Boolean, default: false },
         },
         leveling: {
             levelRoles: [{
