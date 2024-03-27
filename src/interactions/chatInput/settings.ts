@@ -171,19 +171,6 @@ async function handleChatAI(client: CustomClient, interaction: ChatInputCommandI
     if (!interaction.guild) {
         return { error: "Missing Guild", ephemeral: true };
     }
-    
-    const channel = interaction.options.getChannel("channel", false, [ChannelType.GuildText]);
-
-    if (channel) {
-        client.settings.set(
-            interaction.guild.id,
-            await SettingsModel.findOneAndUpdate(
-                { _id: interaction.guild.id },
-                { aiChannel: channel.id, toUpdate: true },
-                { upsert: true, setDefaultsOnInsert: true, new: true }
-            )
-        );
-    }
 
     return {
         embeds: [client.simpleEmbed({
@@ -375,18 +362,6 @@ const settings: InteractionCommand = {
                 )
                 .setName("staff-apply")
                 .setDescription("Manages the settings of the staff application system.")
-        )
-        .addSubcommand(subcmd =>
-            subcmd
-                .addChannelOption(option =>
-                    option
-                        .addChannelTypes(ChannelType.GuildText)
-                        .setRequired(false)
-                        .setName("channel")
-                        .setDescription("The channel for the chat AI. If left empty, available everywhere.")    
-                )
-                .setName("ai")
-                .setDescription("Manages the settings of the chat AI.")
         )
         .addSubcommand(subcmd =>
             subcmd

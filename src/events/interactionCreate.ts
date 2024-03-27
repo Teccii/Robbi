@@ -36,6 +36,7 @@ import dayjs from "dayjs";
 import { remindmeId, remindmeQuestions } from "interactions/chatInput/remindme";
 import { parseDuration } from "lib/time";
 import { ReminderModel } from "models/Reminder";
+import { aiPromptId, getPromptQuestions } from "interactions/chatInput/ai";
 
 async function handleDMInteraction(_client: CustomClient, _interaction: Interaction): Promise<any> {
 
@@ -172,6 +173,25 @@ async function handleModal(client: CustomClient, interaction: ModalSubmitInterac
                 ephemeral: true,
             });
         }
+    } else if (interaction.customId == aiPromptId) {
+        const answers = await parseAnswers(client, interaction, getPromptQuestions(interaction.settings));
+        const prompt = answers.get("prompt")!;
+
+        client.settings.set(
+            interaction.guild.id,
+            await SettingsModel.findOneAndUpdate(
+                { _id: interaction.guild.id },
+                { "ai.prompt": prompt, toUpdate: true },
+                { upsert: true, setDefaultsOnInsert: true, new: true }
+            )
+        );
+    
+        await interaction.reply({
+            embeds: [client.simpleEmbed({
+                description: "Updated AI settings",
+                color: EmbedColor.Success,
+            })]
+        });
     } else if (interaction.customId.startsWith(wildcardAddId)) {
         const answers = await parseAnswers(client, interaction, wildcardAddQuestions);
 

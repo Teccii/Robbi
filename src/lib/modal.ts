@@ -11,23 +11,35 @@ export class Question {
     customId: string;
     label: string;
     style: TextInputStyle;
+    placeholder?: string;
+    value?: string;
     required: boolean;
 
-    constructor (customId: string, label: string, style: TextInputStyle, required: true) {
+    constructor (customId: string, label: string, style: TextInputStyle, required: true, placeholder?: string, value?: string) {
         this.customId = customId;
         this.label = label;
         this.style = style;
+        this.placeholder = placeholder;
+        this.value = value;
         this.required = required;
     }
 
     toActionRow(): ActionRowBuilder<ModalActionRowComponentBuilder> {
-        return new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(
-            new TextInputBuilder()
-                .setCustomId(this.customId)
-                .setLabel(this.label)
-                .setStyle(this.style)
-                .setRequired(this.required)
-        );
+        let component = new TextInputBuilder()
+            .setCustomId(this.customId)
+            .setLabel(this.label)
+            .setStyle(this.style)
+            .setRequired(this.required);
+
+        if (this.placeholder) {
+            component = component.setPlaceholder(this.placeholder);
+        }
+
+        if (this.value) {
+            component = component.setValue(this.value);
+        }
+        
+        return new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(component);
     }
 }
 

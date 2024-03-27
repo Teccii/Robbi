@@ -58,7 +58,7 @@ const avatar: InteractionCommand = {
                 }).setImage(globalUrl)]
             };
         } else {
-            return { errors: `Failed to get ${user.username}'s avatar` };
+            return { error: `Failed to get ${user.username}'s avatar` };
         }
     },
     help: {

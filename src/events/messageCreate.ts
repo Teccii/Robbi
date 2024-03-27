@@ -130,13 +130,19 @@ const messageCreate: Event = {
             }
         }
 
-        const aiChannel = message.settings.aiChannel;
+        const aiChannels = message.settings.ai.channels;
         
-        if (message.mentions.has(client.user!.id) && (aiChannel === undefined || aiChannel === message.channel.id)) {
+        if (message.mentions.has(client.user!.id) && (aiChannels.length == 0 || aiChannels.includes(message.channel.id))) {
+            const chat = client.chats.get(message.guild.id);
+
+            if (!chat) {
+                return;
+            }
+
             try {
                 message.channel.sendTyping();
 
-                const response = (await client.aiChat.sendMessage(`${message.author.username}:\n${message.cleanContent}`)).response;
+                const response = (await chat.sendMessage(`${message.author.username}:\n${message.cleanContent}`)).response;
                 const candidate = response.candidates[0];
                 const parts = candidate.content.parts as Array<Part>;
 
@@ -153,10 +159,10 @@ const messageCreate: Event = {
                         message.reply(filterMessage(text));
                     }, 2000);
                 } else {
-                    message.reply(`sowwy i have a response which this margin is too narrow to contain...`);
+                    message.reply(`Sorry, I have a truly marvelous response which this margin is too narrow to contain...`);
                 }
             } catch (e) {
-                message.reply(`sowwy i don't know how to respond to this...\n${e}`);
+                message.reply(`Sorry, I don't know how to respond to this...\n${e}`);
             }
         }
     }
