@@ -134,7 +134,7 @@ const ai: InteractionCommand = {
         const permLevel = client.permLevel(interaction.member);
         const subcmd = interaction.options.getSubcommand();
 
-        const adminOnly = ["temperature", "prompt", "add", "remove"]
+        const adminOnly = ["debug", "filter", "temperature", "prompt", "add", "remove"]
         const staffOnly = ["start", "stop", "list"];
 
         if ((permLevel < 2 && adminOnly.includes(subcmd)) || (permLevel < 1 && staffOnly.includes(subcmd))) {
