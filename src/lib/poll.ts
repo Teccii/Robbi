@@ -58,11 +58,11 @@ export async function endPoll(client: CustomClient, guild: Guild, poll: IPoll, m
         if (manual) {
             await message.edit({
                 embeds: [client.simpleEmbed({
-                    title: "Poll",
+                    title: embed.title ?? undefined,
+                    description: embed.description ?? undefined,
                     footer: "This poll was ended manually",
                     color: EmbedColor.Neutral,
                 }).setFields(
-                    embed.fields[0],
                     { name: "Ended", value: `<t:${Math.trunc(Date.now() / 1000)}:f>` },
                     { name: "Result", value: result },
                 )],
@@ -71,10 +71,10 @@ export async function endPoll(client: CustomClient, guild: Guild, poll: IPoll, m
         } else {
             await message.edit({
                 embeds: [client.simpleEmbed({
-                    title: "Poll",
+                    title: embed.title ?? undefined,
+                    description: embed.description ?? undefined,
                     color: EmbedColor.Neutral,
                 }).setFields(
-                    embed.fields[0],
                     { name: "Ended", value: `<t:${Math.trunc(Date.now() / 1000)}:f>` },
                     { name: "Result", value: result },
                 )],

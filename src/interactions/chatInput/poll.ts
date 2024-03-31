@@ -11,7 +11,7 @@ import { EmbedColor } from "lib/config";
 import { PollModel } from "models/Poll";
 import { endPoll } from "lib/poll";
 
-export const pollCreateId = "pollCreate";
+export const pollVoteId = "pollVote";
 
 const description = "Manages polls for this guild.";
 const numberEmojis: Map<number, string> = new Map([
@@ -42,6 +42,12 @@ const poll: InteractionCommand = {
                         .setRequired(true)
                         .setName("question")
                         .setDescription("The question of the new poll.")
+                )
+                .addStringOption(option =>
+                    option
+                        .setRequired(true)
+                        .setName("description")
+                        .setDescription("The description of the new poll.")
                 )
                 .addStringOption(option =>
                     option
@@ -96,6 +102,7 @@ const poll: InteractionCommand = {
             const id = interaction.options.getString("id", true);
             const time = interaction.options.getInteger("time", true) * 60;
             const question = interaction.options.getString("question", true);
+            const description = interaction.options.getString("description", true);
 
             let options: ActionRowBuilder<ButtonBuilder> = new ActionRowBuilder();
 
@@ -110,7 +117,7 @@ const poll: InteractionCommand = {
 
                         options = options.addComponents(
                             new ButtonBuilder()
-                                .setCustomId(`${pollCreateId}-${id}-${i}`)
+                                .setCustomId(`${pollVoteId}-${id}-${i}`)
                                 .setEmoji(emoji)
                                 .setLabel(option)
                                 .setStyle(ButtonStyle.Primary)
@@ -121,7 +128,7 @@ const poll: InteractionCommand = {
 
                         options = options.addComponents(
                             new ButtonBuilder()
-                                .setCustomId(`${pollCreateId}-${id}-${i}`)
+                                .setCustomId(`${pollVoteId}-${id}-${i}`)
                                 .setEmoji(emoji)
                                 .setLabel(label)
                                 .setStyle(ButtonStyle.Primary)
@@ -134,10 +141,10 @@ const poll: InteractionCommand = {
 
             await interaction.reply({
                 embeds: [client.simpleEmbed({
-                    title: "Poll",
+                    title: question,
+                    description: description,
                     color: EmbedColor.Neutral,
                 }).setFields(
-                    { name: "Question", value: question },
                     { name: "Ends", value: `<t:${endsAt}:R>` }
                 )],
                 components: [options]

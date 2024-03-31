@@ -11,7 +11,7 @@ import {
 } from "discord.js";
 import { CustomInteractionReplyOptions, toReplyOptions } from "lib/command";
 import { wildcardAddId, wildcardAddQuestions } from "interactions/chatInput/wildcard";
-import { pollCreateId } from "interactions/chatInput/poll";
+import { pollVoteId } from "interactions/chatInput/poll";
 import { PollModel } from "models/Poll";
 import {
     ticketDeleteId,
@@ -71,6 +71,8 @@ async function handleButton(client: CustomClient, interaction: ButtonInteraction
         return;
     }
 
+    info("button", interaction.customId);
+
     if (interaction.customId == ticketDeleteId && interaction.member instanceof GuildMember) {
         const permLevel = client.permLevel(interaction.member);
 
@@ -94,7 +96,7 @@ async function handleButton(client: CustomClient, interaction: ButtonInteraction
                 color: EmbedColor.Error,
             })]
         });
-    } else if (interaction.customId.startsWith(pollCreateId)) {
+    } else if (interaction.customId.startsWith(pollVoteId)) {
         const split = interaction.customId.split("-")
         const id = split[1];
         const option = Number(split[2]);
@@ -106,8 +108,6 @@ async function handleButton(client: CustomClient, interaction: ButtonInteraction
 
         if (poll) {
             if (!poll.voted.includes(interaction.user.id)) {
-                info("button", `${pollCreateId} - Option ${option}`);
-
                 //typescript be like
                 let update: any = {};
                 update[`votes.${option - 1}`] = 1;
