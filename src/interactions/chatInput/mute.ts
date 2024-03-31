@@ -74,7 +74,7 @@ const mute: InteractionCommand = {
         const caseNumber = await client.nextCounter(`${interaction.guild.id}-caseNumber`);
         const reason = interaction.options.getString("reason", false) ?? "No reason provided";
         const seconds = parseDuration(interaction.options.getString("length", true));
-        const expiresAt = Math.trunc(Date.now() / 1000); + seconds;
+        const expiresAt = Math.trunc(Date.now() / 1000) + seconds;
 
         await member.timeout(seconds * 1000, reason).then(member => {
             info("mute", `${member.user.username} (${member.id}) muted in ${interaction.guild.name} (${interaction.guild.id}) by ${interaction.user} (${interaction.user.id}).\n\tDuration: ${seconds}.\n\tReason: ${reason}`);

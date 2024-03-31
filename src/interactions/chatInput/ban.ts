@@ -202,7 +202,7 @@ const ban: InteractionCommand = {
         } else {
             const seconds = parseDuration(duration);
 
-            const expiresAt = Math.trunc(Date.now() / 1000); + seconds;
+            const expiresAt = Math.trunc(Date.now() / 1000) + seconds;
 
             await new CaseModel({
                 caseNumber,
