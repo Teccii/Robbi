@@ -11,9 +11,10 @@ import { GenerateContentCandidate } from "@google-cloud/vertexai";
 import CustomClient from "lib/client";
 
 function filterMessage(text: string): string {
+    text = text.replaceAll(/<@.+?>/g, "**Fuck you for trying**");
+    text = text.replaceAll("@everyone", "**Fuck you for trying**");
+    text = text.replaceAll("@here", "**Fuck you for trying**");
     text = text.trim();
-    text = text.replaceAll("@everyone", "");
-    text = text.replaceAll("@here", "");
 
     return text;
 }
