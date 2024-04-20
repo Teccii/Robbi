@@ -25,7 +25,7 @@ export function getPromptQuestions(settings: ISettings): Question[] {
             "second",
             "Paragraph 2",
             TextInputStyle.Paragraph,
-            true,
+            false,
             undefined,
             settings.ai.prompt.slice(4000, 8000),
         ),
@@ -33,7 +33,7 @@ export function getPromptQuestions(settings: ISettings): Question[] {
             "third",
             "Paragraph 3",
             TextInputStyle.Paragraph,
-            true,
+            false,
             undefined,
             settings.ai.prompt.slice(8000),
         )

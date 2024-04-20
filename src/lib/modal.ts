@@ -15,7 +15,7 @@ export class Question {
     value?: string;
     required: boolean;
 
-    constructor (customId: string, label: string, style: TextInputStyle, required: true, placeholder?: string, value?: string) {
+    constructor (customId: string, label: string, style: TextInputStyle, required: boolean, placeholder?: string, value?: string) {
         this.customId = customId;
         this.label = label;
         this.style = style;
