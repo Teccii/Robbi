@@ -20,18 +20,25 @@ function filterMessage(text: string): string {
 }
 
 function getChunks(str: string, chunkSize: number): string[] {
-    const numChunks = Math.ceil(str.length / chunkSize);
-    const chunks = new Array<string>(numChunks);
+    if (str.length < chunkSize) {
+        return [str];
+    }
 
-    for (let i = 0, j = 0; i < numChunks; i++, j += chunkSize) {
-        let end = j + chunkSize;
+    const chunks: string[] = [];
 
-        if (end > str.length) {
-            end = str.length;
+    while (str.length > chunkSize) {
+        let nextStart = chunkSize;
+
+        while (str[nextStart] !== ' ') {
+            nextStart -= 1;
         }
 
-        chunks[i] = str.substring(j, end);
+        chunks.push(str.slice(0, nextStart));
+
+        str = str.slice(nextStart);
     }
+
+    chunks.push(str);
 
     return chunks;
 }
@@ -226,8 +233,6 @@ const messageCreate: Event = {
                     }, 2000);
                 } else {
                     const chunks = getChunks(text, 2000);
-
-                    console.log(chunks);
 
                     setTimeout(async () => {
                         let previousMsg = message;
