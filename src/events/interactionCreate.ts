@@ -175,7 +175,7 @@ async function handleModal(client: CustomClient, interaction: ModalSubmitInterac
         }
     } else if (interaction.customId == aiPromptId) {
         const answers = await parseAnswers(client, interaction, getPromptQuestions(interaction.settings));
-        const prompt = answers.get("prompt")!;
+        const prompt = answers.get("first")! + answers.get("second")! + answers.get("third")!;
 
         client.settings.set(
             interaction.guild.id,

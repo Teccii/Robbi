@@ -14,12 +14,28 @@ export const aiPromptId = "aiPrompt";
 export function getPromptQuestions(settings: ISettings): Question[] {
     return [
         new Question(
-            "prompt",
-            "Prompt",
+            "first",
+            "Paragraph 1",
             TextInputStyle.Paragraph,
             true,
             undefined,
-            settings.ai.prompt,
+            settings.ai.prompt.slice(0, 4000),
+        ),
+        new Question(
+            "second",
+            "Paragraph 2",
+            TextInputStyle.Paragraph,
+            true,
+            undefined,
+            settings.ai.prompt.slice(4000, 8000),
+        ),
+        new Question(
+            "third",
+            "Paragraph 3",
+            TextInputStyle.Paragraph,
+            true,
+            undefined,
+            settings.ai.prompt.slice(8000),
         )
     ]
 }
