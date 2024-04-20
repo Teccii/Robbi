@@ -97,7 +97,7 @@ const messageDelete: Event = {
                         }).setImage(attachment.url));
 
                         i++;
-                    } else if (attachment.contentType?.includes("video/")) {
+                    } else {
                         components.push(new ActionRowBuilder<ButtonBuilder>().addComponents([
                             new ButtonBuilder()
                                 .setLabel(attachment.name)

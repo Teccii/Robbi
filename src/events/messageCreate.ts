@@ -19,6 +19,23 @@ function filterMessage(text: string): string {
     return text;
 }
 
+function getChunks(str: string, chunkSize: number): string[] {
+    const numChunks = Math.ceil(str.length / chunkSize);
+    const chunks = new Array<string>(numChunks);
+
+    for (let i = 0, j = 0; i < numChunks; i++, j += chunkSize) {
+        let end = j + chunkSize;
+
+        if (end > str.length) {
+            end = str.length;
+        }
+
+        chunks[i] = str.substring(j, end);
+    }
+
+    return chunks;
+}
+
 function getDebugEmbed(client: CustomClient, candidate: GenerateContentCandidate): EmbedBuilder {
     let embed = client.simpleEmbed({
         title: "Debug Data",
@@ -191,22 +208,48 @@ const messageCreate: Event = {
                     }
                 }
 
+                text = filterMessage(text);
+
                 if (text.length <= 2000) {
                     setTimeout(() => {
                         if (!message.settings.ai.debug) {
-                            message.reply(filterMessage(text));
+                            message.reply(text);
                         } else {
                             message.reply({
                                 embeds: [client.simpleEmbed({
                                     title: "Response",
-                                    description: filterMessage(text),
+                                    description: text,
                                     color: EmbedColor.Success,
                                 }), getDebugEmbed(client, candidate)]
                             });
                         }
                     }, 2000);
                 } else {
-                    message.reply(`Sorry, I have a truly marvelous response which this margin is too narrow to contain...`);
+                    const chunks = getChunks(text, 2000);
+
+                    console.log(chunks);
+
+                    setTimeout(async () => {
+                        let previousMsg = message;
+
+                        for (const chunk of chunks) {
+                            if (chunk == "") {
+                                continue;
+                            }
+
+                            if (!message.settings.ai.debug) {
+                                previousMsg = await previousMsg.reply(chunk);
+                            } else {
+                                previousMsg = await previousMsg.reply({
+                                    embeds: [client.simpleEmbed({
+                                        title: "Response",
+                                        description: chunk,
+                                        color: EmbedColor.Success,
+                                    }), getDebugEmbed(client, candidate)]
+                                });
+                            }
+                        }
+                    }, 2000);
                 }
             } catch (e) {
                 message.reply(`Sorry, I don't know how to respond to this...\n${e}`);

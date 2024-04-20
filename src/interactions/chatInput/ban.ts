@@ -49,87 +49,18 @@ const ban: InteractionCommand = {
             return { error: "Invalid Interaction Type" };
         }
 
-        const member = interaction.options.getMember("member");
+        const user = interaction.options.getUser("member", true);
 
-        if (!member) {
-            //ig just copy paste this here lol
-            const user = interaction.options.getUser("member", true);
-            const caseNumber = await client.nextCounter(`${interaction.guild.id}-caseNumber`);
-            const reason = interaction.options.getString("reason", false) ?? "No reason provided";
-            const duration = interaction.options.getString("length", false) ?? "permanent";
-
-            let dmSuccessful = true;
-
-            if (user.bot) {
-                dmSuccessful = false;
-            }
-
-            if (duration.toLowerCase() == "permanent") {
-                await new CaseModel({
-                    caseNumber,
-                    caseType: CaseType.Ban,
-                    guildId: interaction.guild.id,
-                    moderatorId: interaction.user.id,
-                    targetId: user.id,
-                    reason,
-                }).save();
-
-                const logChannelId = interaction.settings.events.find(v => v.event == "caseCreate")?.channel;
-
-                if (logChannelId) {
-                    const logChannel = await interaction.guild.channels.fetch(logChannelId);
-
-                    if (logChannel && !logChannel.isDMBased() && logChannel.isTextBased()) {
-                        await logChannel.send({
-                            embeds: [client.simpleEmbed({
-                                description: `${member} banned by ${interaction.user}`,
-                                footer: `Case number ${caseNumber} · User ID: ${user.id} · ${dayjs().format("DD/MM/YYYY HH:mm")}`,
-                                color: EmbedColor.Neutral
-                            })]
-                        });
-                    }
-                }
-
-                if (dmSuccessful) {
-                    await user.send({
-                        embeds: [client.simpleEmbed({
-                            title: `You have been permanently banned from ${interaction.guild}`,
-                            color: EmbedColor.Neutral,
-                            footer: `Case number ${caseNumber} · ${dayjs().format("DD/MM/YYYY HH:mm")}`
-                        }).setFields(
-                            { name: "Reason", value: reason, inline: true }
-                        )]
-                    }).catch(_ => {
-                        dmSuccessful = false;
-                    });
-                }
-
-                return {
-                    embeds: [client.simpleEmbed({
-                        description: dmSuccessful
-                            ? `${member} already banned, added another case`
-                            : `:warning: Unable to send messages to this user\n${member} already banned, added another case`,
-                        footer: `Case number ${caseNumber} · ${dayjs().format("DD/MM/YYYY HH:mm")}`,
-                        color: EmbedColor.Neutral
-                    })]
-                }
-            } else {
-                //idk how to handle this case lol
-                return {
-                    error: "User is not a member of this guild.\nUnable to ban for a variable length of time.",
-                    ephemeral: true,
-                };
-            }
-        }
-
-        if (member.id == interaction.member.id) {
+        if (user.id == interaction.user.id) {
             return {
                 error: "Unable to self-moderate",
                 ephemeral: true
             }
         }
 
-        if (client.permLevel(interaction.member) <= client.permLevel(member)) {
+        const member = interaction.guild.members.cache.find(v => v.id === user.id);
+
+        if (client.permLevel(interaction.member) <= (member !== undefined ? client.permLevel(member) : 0)) {
             return {
                 error: "Cannot moderate user with similar or higher authority",
                 ephemeral: true
@@ -139,41 +70,42 @@ const ban: InteractionCommand = {
         const caseNumber = await client.nextCounter(`${interaction.guild.id}-caseNumber`);
         const reason = interaction.options.getString("reason", false) ?? "No reason provided";
         const duration = interaction.options.getString("length", false) ?? "permanent";
-
+    
+        const logChannelId = interaction.settings.events.find(v => v.event == "caseCreate")?.channel;
+    
+        if (logChannelId) {
+            const logChannel = await interaction.guild.channels.fetch(logChannelId);
+    
+            if (logChannel && !logChannel.isDMBased() && logChannel.isTextBased()) {
+                await logChannel.send({
+                    embeds: [client.simpleEmbed({
+                        title: `Case number ${caseNumber}`,
+                        description: `${user} banned by ${interaction.user}`,
+                        footer: `User ID: ${user.id} · ${dayjs().format("DD/MM/YYYY HH:mm")}`,
+                        color: EmbedColor.Neutral
+                    })]
+                });
+            }
+        }
+    
         let dmSuccessful = true;
-
-        if (member.user.bot) {
+    
+        if (user.bot) {
             dmSuccessful = false;
         }
-
-        if (duration.toLowerCase() == "permanent") {
+    
+        if (duration.toLowerCase() === "permanent") {
             await new CaseModel({
                 caseNumber,
                 caseType: CaseType.Ban,
                 guildId: interaction.guild.id,
                 moderatorId: interaction.user.id,
-                targetId: member.id,
+                targetId: user.id,
                 reason,
             }).save();
-
-            const logChannelId = interaction.settings.events.find(v => v.event == "caseCreate")?.channel;
-
-            if (logChannelId) {
-                const logChannel = await interaction.guild.channels.fetch(logChannelId);
-
-                if (logChannel && !logChannel.isDMBased() && logChannel.isTextBased()) {
-                    await logChannel.send({
-                        embeds: [client.simpleEmbed({
-                            description: `${member} banned by ${interaction.user}`,
-                            footer: `Case number ${caseNumber} · User ID: ${member.id} · ${dayjs().format("DD/MM/YYYY HH:mm")}`,
-                            color: EmbedColor.Neutral
-                        })]
-                    });
-                }
-            }
-
+    
             if (dmSuccessful) {
-                await member.send({
+                await user.send({
                     embeds: [client.simpleEmbed({
                         title: `You have been permanently banned from ${interaction.guild}`,
                         color: EmbedColor.Neutral,
@@ -181,62 +113,44 @@ const ban: InteractionCommand = {
                     }).setFields(
                         { name: "Reason", value: reason, inline: true }
                     )]
-                }).catch(_ => {
+                }).catch(() => {
                     dmSuccessful = false;
                 });
             }
 
-            await member.ban({ reason: reason }).then(member => {
-                info("ban", `${member.user.username} (${member.id}) banned from ${interaction.guild.name} (${interaction.guild.id} by ${interaction.user.username} (${interaction.user.id}).\nDuration: ${duration.toLowerCase()}\nReason: ${reason}`);
+            let guildBanSuccessful = true;
+    
+            await interaction.guild.bans.create(user, { reason }).then(() => {
+                info("ban", `${user.username} (${user.id}) banned from ${interaction.guild.name} (${interaction.guild.id} by ${interaction.user.username} (${interaction.user.id}).\nDuration: ${duration.toLowerCase()}\nReason: ${reason}`);
+            }).catch(() => {
+                guildBanSuccessful = false;
             });
-
+    
             return {
                 embeds: [client.simpleEmbed({
-                    description: dmSuccessful
-                        ? `${member} banned indefinitely`
-                        : `:warning: Unable to send messages to this user\n\t${member} banned indefinitely`,
+                    description: `${!guildBanSuccessful ? ":warning: Failed to create guild ban.\n" : ""}${!dmSuccessful ? ":warning: Unable to send messages to this user.\n": ""}${user} banned indefinitely`,
                     footer: `Case number ${caseNumber} · ${dayjs().format("DD/MM/YYYY HH:mm")}`,
                     color: EmbedColor.Neutral
                 })]
-            }
+            };
         } else {
             const seconds = parseDuration(duration);
-
             const expiresAt = Math.trunc(Date.now() / 1000) + seconds;
-
+    
             await new CaseModel({
                 caseNumber,
                 caseType: CaseType.Ban,
                 guildId: interaction.guild.id,
                 moderatorId: interaction.user.id,
-                targetId: member.id,
+                targetId: user.id,
                 reason,
                 duration: seconds,
                 expired: false,
                 expiresAt,
             }).save();
-
-            const logChannelId = interaction.settings.events.find(v => v.event == "caseCreate")?.channel;
-
-            if (logChannelId) {
-                const logChannel = await interaction.guild.channels.fetch(logChannelId);
-
-                if (logChannel && !logChannel.isDMBased() && logChannel.isTextBased()) {
-                    await logChannel.send({
-                        embeds: [client.simpleEmbed({
-                            description: `${member} banned`,
-                            footer: `Case number ${caseNumber} · User ID: ${member.id} · ${dayjs().format("DD/MM/YYYY HH:mm")}`,
-                            color: EmbedColor.Neutral
-                        }).setAuthor({
-                            name: member.user.username,
-                            iconURL: member.avatarURL() ?? undefined,
-                        })]
-                    })
-                }
-            }
-
+    
             if (dmSuccessful) {
-                await member.send({
+                await user.send({
                     embeds: [client.simpleEmbed({
                         title: `You have been banned from ${interaction.guild}`,
                         footer: `Case number ${caseNumber} · ${dayjs().format("DD/MM/YYYY HH:mm")}`,
@@ -244,23 +158,25 @@ const ban: InteractionCommand = {
                     }).setFields(
                         { name: "Reason", value: reason, inline: true },
                         { name: "Expires", value: `<t:${expiresAt}:R>`, inline: true }
-                    )],
-                }).catch(_ => {
-                    dmSuccessful = false;
+                    )]
+                }).catch(() => {
+                    dmSuccessful = false; 
                 });
             }
 
-            await member.ban({ reason: reason }).then(member => {
-                info("ban", `${member.user.username} (${member.id}) banned from ${interaction.guild.name} (${interaction.guild.id} by ${interaction.user.username} (${interaction.user.id}).\n\tDuration: ${duration}\n\tReason: ${reason}`);
+            let guildBanSuccessful = true;
+    
+            await interaction.guild.bans.create(user, { reason }).then(() => {
+                info("ban", `${user.username} (${user.id}) banned from ${interaction.guild.name} (${interaction.guild.id} by ${interaction.user.username} (${interaction.user.id}).\nDuration: ${duration.toLowerCase()}\nReason: ${reason}`);
+            }).catch(() => {
+                guildBanSuccessful = false;
             });
-
+    
             return {
                 embeds: [client.simpleEmbed({
-                    description: dmSuccessful
-                        ? `${member} will be unbanned <t:${expiresAt}:R>`
-                        : `:warning: Unable to send messages to this user\n${member} will be unbanned <t:${expiresAt}:R>`,
+                    description: `${!guildBanSuccessful ? ":warning: Failed to create guild ban.\n" : ""}${!dmSuccessful ? ":warning: Unable to send messages to this user.\n": ""}${user} will be unbanned <t:${expiresAt}:R>`,
                     footer: `Case number ${caseNumber} · ${dayjs().format("DD/MM/YYYY HH:mm")}`,
-                    color: EmbedColor.Neutral,
+                    color: EmbedColor.Neutral
                 })]
             };
         }

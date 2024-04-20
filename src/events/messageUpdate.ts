@@ -96,7 +96,7 @@ const messageUpdate: Event = {
                         .setURL(newMessage.url)
                 ])];
 
-                if (oldMessage.components != newMessage.components) {
+                if (oldMessage.components.length != newMessage.components.length) {
                     let first = true;
 
                     for (const [_, attachment] of oldMessage.attachments) {
@@ -113,7 +113,7 @@ const messageUpdate: Event = {
                             }
 
                             first = false;
-                        } else if (attachment.contentType?.includes("video/") || attachment.contentType?.includes("audio/")) {
+                        } else {
                             components.push(new ActionRowBuilder<ButtonBuilder>().addComponents([
                                 new ButtonBuilder()
                                     .setLabel(`Old-${attachment.name}`)
@@ -139,7 +139,7 @@ const messageUpdate: Event = {
                             }
 
                             first = false;
-                        } else if (attachment.contentType?.includes("video/") || attachment.contentType?.includes("audio/")) {
+                        } else {
                             components.push(new ActionRowBuilder<ButtonBuilder>().addComponents([
                                 new ButtonBuilder()
                                     .setLabel(`New-${attachment.name}`)
