@@ -224,14 +224,9 @@ export default class CustomClient extends Client {
       return false;
     }
 
-    let threshold = HarmBlockThreshold.BLOCK_NONE;
+    let threshold = HarmBlockThreshold.BLOCK_ONLY_HIGH;
     
     switch (settings.ai.contentFilter) {
-      case ContentFilter.None: {
-        threshold = HarmBlockThreshold.BLOCK_NONE;
-        break;
-      }
-
       case ContentFilter.Low: {
         threshold = HarmBlockThreshold.BLOCK_ONLY_HIGH;
         break;
@@ -249,14 +244,14 @@ export default class CustomClient extends Client {
     }
 
     const chat = this.genModel.startChat({
-      safety_settings: [
+      safetySettings: [
         { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold },
         { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold },
         { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold },
         { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold },
         { category: HarmCategory.HARM_CATEGORY_UNSPECIFIED, threshold },
       ],
-      generation_config: {
+      generationConfig: {
         temperature: settings.ai.temperature,
       }
     });

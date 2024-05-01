@@ -5,13 +5,13 @@ import { PollModel } from "models/Poll";
 import { endPoll } from "lib/poll";
 import { ReminderModel } from "models/Reminder";
 import { EmbedColor } from "lib/config";
+import { CooldownModel } from "models/Cooldown";
 import { durationToString } from "lib/time";
 import { info, log } from "lib/log";
 import Event from "lib/event";
 import colors from "colors";
 import dayjs from "dayjs";
 import _ from "lodash";
-import { CooldownModel } from "models/Cooldown";
 
 const statuses: {
     name: string,
@@ -25,27 +25,32 @@ const statuses: {
     },
     {
         name: "customstatus",
-        state: "I love fossil fuels. My dream is to work on an oil rig so that I can drink oil whenever I want!",
+        state: "i love fossil fuels. my dream is to work on an oil rig so that i can drink oil whenever i want!",
         type: ActivityType.Custom
     },
     {
         name: "customstatus",
-        state: "Yeah I'd like to solve the puzzle \"alright go ahead\" MREOWWW",
+        state: "the horrors are endless but i stay silly :3",
         type: ActivityType.Custom
     },
     {
         name: "customstatus",
-        state: "The horrors are endless but I stay silly :3",
+        state: "the voices tell me that i am a good girl",
         type: ActivityType.Custom
     },
     {
         name: "customstatus",
-        state: "Me waking up after telling the nice doctor the truth",
+        state: "me waking up after telling the nice doctor the truth",
         type: ActivityType.Custom
     },
     {
         name: "customstatus",
-        state: "The grind NEVER starts. I am sleeping.",
+        state: "the grind NEVER starts. i am sleeping.",
+        type: ActivityType.Custom
+    },
+    {
+        name: "customstatus",
+        state: "h",
         type: ActivityType.Custom
     }
 ];
@@ -279,8 +284,21 @@ const ready: Event = {
             client.user?.setActivity(newStatus);
         }
 
+        const resetChats = () => {
+            for (const [id, chat] of client.chats.entries()) {
+                if (chat !== undefined && chat !== null) {
+                    continue;
+                }
+
+                info("ai", `Reset chat for ${id}`);
+
+                client.newChat(id);
+            }
+        }
+
         setInterval(update, 3 * 1000);
         setInterval(updatePresence, 30 * 1000);
+        setInterval(resetChats, 20 * 60 * 1000);
 
         client.refreshCommands();
     }

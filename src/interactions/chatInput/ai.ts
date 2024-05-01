@@ -46,36 +46,14 @@ const ai: InteractionCommand = {
     data: new SlashCommandBuilder()
         .addSubcommand(cmd =>
             cmd
-                .setName("start")
-                .setDescription("Boots up the AI for this guild.")    
-        )
-        .addSubcommand(cmd =>
-            cmd
-                .setName("stop")
-                .setDescription("Shuts down the AI for this guild.")    
-        )
-        .addSubcommand(cmd =>
-            cmd
                 .setName("reset")
                 .setDescription("Restarts the AI for this guild.")    
-        )
-        .addSubcommand(cmd =>
-            cmd
-                .addBooleanOption(option =>
-                    option
-                        .setRequired(true)
-                        .setName("value")
-                        .setDescription("The new Debug Mode value.")
-                )
-                .setName("debug")
-                .setDescription("Toggles Debug Mode on/off for the AI for this guild.")    
         )
         .addSubcommand(cmd =>
             cmd
                 .addStringOption(option =>
                     option
                         .setChoices(
-                            { name: "None", value: "None" },
                             { name: "Low", value: "Low" },
                             { name: "Medium", value: "Medium"},
                             { name: "High", value: "High" },
@@ -150,38 +128,14 @@ const ai: InteractionCommand = {
         const permLevel = client.permLevel(interaction.member);
         const subcmd = interaction.options.getSubcommand();
 
-        const adminOnly = ["debug", "filter", "temperature", "prompt", "add", "remove"]
-        const staffOnly = ["start", "stop", "list"];
+        const adminOnly = ["filter", "temperature", "prompt", "add", "remove"]
+        const staffOnly = ["list"];
 
         if ((permLevel < 2 && adminOnly.includes(subcmd)) || (permLevel < 1 && staffOnly.includes(subcmd))) {
 			return { error: "Insufficient permissions", ephemeral: true };
 		}
 
-        if (subcmd == "start") {
-            if (!client.chats.has(interaction.guild.id)) {
-                client.newChat(interaction.guild.id);
-
-                return {
-                    embeds: [client.simpleEmbed({
-                        description: "Successfully turned on the AI",
-                        color: EmbedColor.Success,
-                    })]
-                };
-            } else {
-                return { error: "The AI is already turned on" };
-            }
-        } else if (subcmd == "stop") {
-            if (client.chats.delete(interaction.guild.id)) {
-                return {
-                    embeds: [client.simpleEmbed({
-                        description: "Successfully turned off the AI",
-                        color: EmbedColor.Success,
-                    })]
-                };
-            } else {
-                return { error: "The AI is already turned off" };
-            }
-        } else if (subcmd == "reset") {
+        if (subcmd == "reset") {
             if (client.newChat(interaction.guild.id)) {
                 return {
                     embeds: [client.simpleEmbed({
@@ -192,24 +146,6 @@ const ai: InteractionCommand = {
             } else {
                 return { error: "Failed to reset the AI" };
             }
-        }  else if (subcmd == "debug") {
-            const value = interaction.options.getBoolean("value", true);
-
-            client.settings.set(
-                interaction.guild.id,
-                await SettingsModel.findOneAndUpdate(
-                    { _id: interaction.guild.id },
-                    { "ai.debug": value, toUpdate: true },
-                    { upsert: true, setDefaultsOnInsert: true, new: true }
-                )
-            );
-
-            return {
-                embeds: [client.simpleEmbed({
-                    description: "Updated AI settings",
-                    color: EmbedColor.Success,
-                })]
-            };
         } else if (subcmd == "filter") {
             const value = interaction.options.getString("value", true);
         
@@ -313,7 +249,7 @@ const ai: InteractionCommand = {
         return { };
     },
     help: {
-        subcommands: ["start", "stop", "reset"],
+        subcommands: ["reset", "temperature", "prompt", "channel add", "channel remove", "channel list"],
         description,
         category: "Management"
     }

@@ -11,7 +11,6 @@ export enum AnnouncementType {
 }
 
 export enum ContentFilter {
-    None = "None",
     Low = "Low",
     Medium = "Medium",
     High = "High",
@@ -23,7 +22,6 @@ export interface ISettings extends Document {
         contentFilter: ContentFilter;
         temperature: number;
         prompt: string;
-        debug: boolean;
     }
     leveling: {
         levelRoles: {
@@ -63,6 +61,7 @@ export interface ISettings extends Document {
         channel: string;
     }[];
     staffApplyChannel?: string;
+    botChannel?: string;
     ticketCategory?: string;
     createdAt: number;
     updatedAt: number;
@@ -74,10 +73,9 @@ const settingsSchema = new Schema<ISettings>(
         _id: String,
         ai: {
             channels: [String],
-            contentFilter: { type: ContentFilter, default: ContentFilter.High },
+            contentFilter: { type: String, enum: Object.values(ContentFilter), default: ContentFilter.High },
             temperature: { type: Number, default: 1.0 },
             prompt: { type: String, default: "" },
-            debug: { type: Boolean, default: false },
         },
         leveling: {
             levelRoles: [{
@@ -85,7 +83,7 @@ const settingsSchema = new Schema<ISettings>(
                 role: String,
             }],
             removePastRoles: { type: Boolean, default: true },
-            announcements: { type: AnnouncementType, default: AnnouncementType.Always },
+            announcements: { type: String, enum: Object.values(AnnouncementType), default: AnnouncementType.Always },
             messageMin: { type: Number, default: 15 },
             messageMax: { type: Number, default: 40 },
             messageCooldown: { type: Number, default: 60 },
@@ -117,6 +115,7 @@ const settingsSchema = new Schema<ISettings>(
             channel: String,
         }],
         staffApplyChannel: String,
+        botChannel: String,
         ticketCategory: String,
         toUpdate: { type: Boolean, default: false },
     },

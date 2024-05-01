@@ -110,12 +110,7 @@ const client = new CustomClient(config, {
 });
 
 const run = async () => {
-  await mongoose.connect(process.env.mongo!, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      useFindAndModify: false,
-      useCreateIndex: true,
-  }).catch((e) => {
+  await mongoose.connect(process.env.mongo!).catch((e) => {
     error(`Caught an error while trying to connect to MongoDB: ${e}`);
     process.exit(1);
   });

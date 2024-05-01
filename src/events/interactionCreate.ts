@@ -3,6 +3,7 @@ import {
     AutocompleteInteraction,
     ButtonInteraction,
     CommandInteraction,
+    EmbedBuilder,
     Events,
     GuildMember,
     Interaction,
@@ -37,6 +38,7 @@ import { remindmeId, remindmeQuestions } from "interactions/chatInput/remindme";
 import { parseDuration } from "lib/time";
 import { ReminderModel } from "models/Reminder";
 import { aiPromptId, getPromptQuestions } from "interactions/chatInput/ai";
+import { updateEmbedQuestions, updateId, updateQuestions } from "interactions/chatInput/update";
 
 async function handleDMInteraction(_client: CustomClient, _interaction: Interaction): Promise<any> {
 
@@ -190,6 +192,48 @@ async function handleModal(client: CustomClient, interaction: ModalSubmitInterac
             embeds: [client.simpleEmbed({
                 description: "Updated AI settings",
                 color: EmbedColor.Success,
+            })]
+        });
+    } else if (interaction.customId.startsWith(updateId)) {
+        const embedBool: boolean = JSON.parse(interaction.customId.slice(updateId.length + 1));
+        const answers = await parseAnswers(client, interaction, embedBool ? updateEmbedQuestions : updateQuestions);
+
+        let message = {
+            embeds: new Array<EmbedBuilder>(),
+            content: ""
+        };
+
+        if (embedBool) {
+            const title = answers.get("title")!;
+            const description = answers.get("description")!;
+
+            message.embeds = [client.simpleEmbed({
+                title,
+                description,
+                color: EmbedColor.Neutral
+            })];
+        } else {
+            const content = answers.get("content")!;
+
+            message.content = content;
+        }
+
+        for (const s of client.settings.values()) {
+            if (s.botChannel === undefined) {
+                continue;
+            }
+
+            const channel = await client.channels.fetch(s.botChannel);
+
+            if (channel && !channel.isDMBased() && channel.isTextBased()) {
+                await channel.send(message);
+            }
+        }
+
+        await interaction.reply({
+            embeds: [client.simpleEmbed({
+                description: `Successfully posted new update`,
+                color: EmbedColor.Success
             })]
         });
     } else if (interaction.customId.startsWith(wildcardAddId)) {

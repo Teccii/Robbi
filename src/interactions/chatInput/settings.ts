@@ -167,6 +167,32 @@ async function handleStaffApply(client: CustomClient, interaction: ChatInputComm
     };
 }
 
+async function handleBotChannel(client: CustomClient, interaction: ChatInputCommandInteraction): Promise<CustomInteractionReplyOptions> {
+    if (!interaction.guild) {
+        return { error: "Missing Guild", ephemeral: true };
+    }
+    
+    const channel = interaction.options.getChannel("channel", false, [ChannelType.GuildText]);
+
+    if (channel) {
+        client.settings.set(
+            interaction.guild.id,
+            await SettingsModel.findOneAndUpdate(
+                { _id: interaction.guild.id },
+                { botChannel: channel.id, toUpdate: true },
+                { upsert: true, setDefaultsOnInsert: true, new: true }
+            )
+        );
+    }
+
+    return {
+        embeds: [client.simpleEmbed({
+            description: "Updated staff application settings",
+            color: EmbedColor.Success,
+        })]
+    };
+}
+
 async function handleChatAI(client: CustomClient, interaction: ChatInputCommandInteraction): Promise<CustomInteractionReplyOptions> {
     if (!interaction.guild) {
         return { error: "Missing Guild", ephemeral: true };
@@ -365,6 +391,18 @@ const settings: InteractionCommand = {
         )
         .addSubcommand(subcmd =>
             subcmd
+                .addChannelOption(option =>
+                    option
+                        .addChannelTypes(ChannelType.GuildText)
+                        .setRequired(false)
+                        .setName("channel")
+                        .setDescription("The channel for bot information")    
+                )
+                .setName("bot-channel")
+                .setDescription("Manages the channel for bot updates and other information.")
+        )
+        .addSubcommand(subcmd =>
+            subcmd
                 .addStringOption(option =>
                     option
                         .setChoices(
@@ -417,29 +455,21 @@ const settings: InteractionCommand = {
             return { error: "Invalid Interaction Type" };
         }
 
-        const subcmdGroup = interaction.options.getSubcommandGroup(false);
         const subcmd = interaction.options.getSubcommand(true);
 
-        if (subcmdGroup) {
-
-        } else {
-            if (subcmd == "leveling") {
-                return await handleLeveling(client, interaction);
-            } else if (subcmd == "tickets") {
-                return await handleTickets(client, interaction);
-            } else if (subcmd == "staff-apply") {
-                return await handleStaffApply(client, interaction);
-            } else if (subcmd == "ai") {
-                return await handleChatAI(client, interaction);
-            } else if (subcmd == "logs") {
-                return await handleLogs(client, interaction);
-            }
+        switch (subcmd) {
+            case "leveling": return await handleLeveling(client, interaction);
+            case "tickets": return await handleTickets(client, interaction);
+            case "staff-apply": return await handleStaffApply(client, interaction);
+            case "bot-channel": return await handleBotChannel(client, interaction);
+            case "logs": return await handleLogs(client, interaction);
+            case "ai": return await handleChatAI(client, interaction);
         }
 
         return { error: "Unknown Error", ephemeral: true };
     },
     help: {
-        subcommands: ["leveling", "tickets", "logs"], 
+        subcommands: ["leveling", "tickets", "staff-apply", "bot-channel", "logs", "ai"], 
         description,
         category: "Management"
     }

@@ -1,14 +1,12 @@
-import { EmbedBuilder, Events, Message } from "discord.js";
+import { Events, Message } from "discord.js";
 import { SettingsModel } from "models/Settings";
 import { LevelModel } from "models/Level";
 import { handleNewLevel, xpToLevel } from "lib/xp";
-import { log } from "lib/log";
-import Event from "lib/event";
-import colors from "colors";
+import { info, error, log} from "lib/log";
 import { AFKModel } from "models/AFK";
 import { EmbedColor } from "lib/config";
-import { GenerateContentCandidate } from "@google-cloud/vertexai";
-import CustomClient from "lib/client";
+import Event from "lib/event";
+import colors from "colors";
 
 function filterMessage(text: string): string {
     text = text.replaceAll(/<@.+?>/g, "**Fuck you for trying**");
@@ -41,42 +39,6 @@ function getChunks(str: string, chunkSize: number): string[] {
     chunks.push(str);
 
     return chunks;
-}
-
-function getDebugEmbed(client: CustomClient, candidate: GenerateContentCandidate): EmbedBuilder {
-    let embed = client.simpleEmbed({
-        title: "Debug Data",
-        color: EmbedColor.Error
-    });
-
-    if (candidate.finishMessage) {
-        embed = embed.addFields({
-            name: "Finish Message",
-            value: candidate.finishMessage
-        });
-    }
-
-    if (candidate.finishReason) {
-        embed = embed.addFields({
-            name: "Finish Reason",
-            value: candidate.finishReason
-        });
-    }
-
-    if (candidate.safetyRatings) {
-        let text = "";
-
-        for (const rating of candidate.safetyRatings) {
-            text += `**${rating.category}**: ${rating.probability}\n`;
-        }
-
-        embed = embed.addFields({
-            name: "Safety Ratings",
-            value: text,
-        });
-    }
-
-    return embed;
 }
 
 const messageCreate: Event = {
@@ -202,35 +164,25 @@ const messageCreate: Event = {
             }
 
             try {
+                info("ai user", `${message.author.username} (${message.author.id}) in ${message.guild.id}: ${message.cleanContent}`);
+
                 message.channel.sendTyping();
 
                 const response = (await chat.sendMessage(`${message.author.username}:\n${message.cleanContent}`)).response;
-                const candidate = response.candidates[0];
+                const candidate = response.candidates![0];
 
                 let text = "";
 
                 for (const part of candidate.content.parts) {
-                    if (part.text !== undefined) {
-                        text += part.text;
-                    }
+                    text += part.text;
                 }
 
                 text = filterMessage(text);
 
+                info("ai model", text);
+
                 if (text.length <= 2000) {
-                    setTimeout(() => {
-                        if (!message.settings.ai.debug) {
-                            message.reply(text);
-                        } else {
-                            message.reply({
-                                embeds: [client.simpleEmbed({
-                                    title: "Response",
-                                    description: text,
-                                    color: EmbedColor.Success,
-                                }), getDebugEmbed(client, candidate)]
-                            });
-                        }
-                    }, 2000);
+                    setTimeout(() => message.reply(text), 2000);
                 } else {
                     const chunks = getChunks(text, 2000);
 
@@ -242,21 +194,13 @@ const messageCreate: Event = {
                                 continue;
                             }
 
-                            if (!message.settings.ai.debug) {
-                                previousMsg = await previousMsg.reply(chunk);
-                            } else {
-                                previousMsg = await previousMsg.reply({
-                                    embeds: [client.simpleEmbed({
-                                        title: "Response",
-                                        description: chunk,
-                                        color: EmbedColor.Success,
-                                    }), getDebugEmbed(client, candidate)]
-                                });
-                            }
+                            previousMsg = await previousMsg.reply(chunk);
                         }
                     }, 2000);
                 }
             } catch (e) {
+                error(`${e}`);
+
                 message.reply(`Sorry, I don't know how to respond to this...\n${e}`);
             }
         }
