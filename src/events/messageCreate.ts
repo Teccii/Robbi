@@ -17,14 +17,15 @@ function filterMessage(text: string): string {
     return text;
 }
 
-function getChunks(str: string, chunkSize: number): string[] {
+function getChunks(str: string, chunkSize: number, maxChunks: number): string[] {
     if (str.length < chunkSize) {
         return [str];
     }
 
+    const originalLength = str.length;
     const chunks: string[] = [];
 
-    while (str.length > chunkSize) {
+    while (str.length > chunkSize && chunks.length < maxChunks) {
         let nextStart = chunkSize;
 
         while (str[nextStart] !== ' ') {
@@ -36,7 +37,11 @@ function getChunks(str: string, chunkSize: number): string[] {
         str = str.slice(nextStart);
     }
 
-    chunks.push(str);
+    if (chunks.length < maxChunks) {
+        chunks.push(str);
+    } else {
+        chunks.push(`sorry i was yapping too much...\nstring length: ${originalLength} chars`);
+    }
 
     return chunks;
 }
@@ -184,7 +189,7 @@ const messageCreate: Event = {
                 if (text.length <= 2000) {
                     setTimeout(() => message.reply(text), 2000);
                 } else {
-                    const chunks = getChunks(text, 2000);
+                    const chunks = getChunks(text, 2000, 4);
 
                     setTimeout(async () => {
                         let previousMsg = message;
@@ -201,7 +206,7 @@ const messageCreate: Event = {
             } catch (e) {
                 error(`${e}`);
 
-                message.reply(`Sorry, I don't know how to respond to this...\n${e}`);
+                message.reply(`sorry i dont know how to respond to this...\n${e}`);
             }
         }
     }
