@@ -37,7 +37,7 @@ export default class CustomClient extends Client {
     this.config = config;
 
     // Initialize Vertex AI stuff
-    const vertexAi = new VertexAI({project: credentials.project_id, location: 'europe-west3', googleAuthOptions: { credentials }});
+    const vertexAi = new VertexAI({project: credentials.installed.project_id, location: 'europe-west3'});
     const genModel = vertexAi.getGenerativeModel({model: "gemini-1.0-pro"});
     this.genModel = genModel;
     this.chats = new Collection();
