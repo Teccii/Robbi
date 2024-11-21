@@ -127,7 +127,7 @@ const mute: InteractionCommand = {
             });
         }
 
-        return {
+        await interaction.reply({
             embeds: [client.simpleEmbed({
                 description: dmSuccessful
                     ? `${member} will be unmuted <t:${expiresAt}:R>`
@@ -135,7 +135,9 @@ const mute: InteractionCommand = {
                 footer: `Case number ${caseNumber} · ${dayjs().format("DD/MM/YYYY HH:mm")}`,
                 color: EmbedColor.Neutral,
             })]
-        };
+        });
+
+        return {};
     },
     help: {
         subcommands: [],

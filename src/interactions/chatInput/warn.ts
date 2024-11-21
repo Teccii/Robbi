@@ -98,7 +98,7 @@ const warn: InteractionCommand = {
             });
         }
 
-        return {
+        await interaction.reply({
             embeds: [client.simpleEmbed({
                 description: dmSuccessful
                     ? `${member} has been warned with the following reason:\n${reason}`
@@ -106,7 +106,9 @@ const warn: InteractionCommand = {
                 footer: `Case number ${caseNumber} · ${dayjs().format("DD/MM/YYYY HH:mm")}`,
                 color: EmbedColor.Neutral,
             })]
-        };
+        });
+
+        return {};
     },
     help: {
         subcommands: [],

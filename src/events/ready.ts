@@ -12,6 +12,7 @@ import Event from "lib/event";
 import colors from "colors";
 import dayjs from "dayjs";
 import _ from "lodash";
+import { WordleModel } from "models/Wordle";
 
 const statuses: {
     name: string,
@@ -139,6 +140,10 @@ const ready: Event = {
             Handles expired mute and ban cases, polls, and reminders.
             */
             const now = Math.trunc(Date.now() / 1000);
+
+            await WordleModel.deleteMany({
+                endsAt: { $lt: now },
+            });
 
             const endedPolls = await PollModel.find({
                 endsAt: { $lt: now },

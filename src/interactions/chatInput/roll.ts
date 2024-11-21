@@ -27,7 +27,7 @@ const roll: InteractionCommand = {
         await interaction.reply({
             embeds: [client.simpleEmbed({
                 title: `Rolling a D${sides}`,
-                description: "<a:loading:1223950217930477638>",
+                description: "<a:loading:1309211245588643850>",
                 color: EmbedColor.Neutral,
             })]
         });

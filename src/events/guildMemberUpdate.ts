@@ -112,11 +112,11 @@ const guildMemberUpdate: Event = {
                     let rolesText = "";
 
                     for (const role of added) {
-                        rolesText += `<:allow:1208121658506874910> ${role}\n`;
+                        rolesText += `<:allow:1309211160104534120> ${role}\n`;
                     }
 
                     for (const role of removed) {
-                        rolesText += `<:deny:1208121656640282634> ${role}\n`;
+                        rolesText += `<:deny:1309211182397395007> ${role}\n`;
                     }
 
                     embed = embed.addFields({ name: "Roles", value: rolesText });

@@ -151,15 +151,15 @@ const channelUpdate: Event = {
                     let text = "";
 
                     for (const perm of updates.allow) {
-                        text += `<:allow:1208121658506874910> ${perm}\n`;
+                        text += `<:allow:1309211160104534120> ${perm}\n`;
                     }
 
                     for (const perm of updates.neutral) {
-                        text += `<:neutral:1208121654744584203> ${perm}\n`;
+                        text += `<:neutral:1309211208771043440> ${perm}\n`;
                     }
 
                     for (const perm of updates.deny) {
-                        text += `<:deny:1208121656640282634> ${perm}\n`;
+                        text += `<:deny:1309211182397395007> ${perm}\n`;
                     }
 
                     embed = embed.addFields({ name: `Permissions for ${updates.name}`, value: text });

@@ -126,13 +126,13 @@ const ban: InteractionCommand = {
                 guildBanSuccessful = false;
             });
     
-            return {
+            await interaction.reply({
                 embeds: [client.simpleEmbed({
                     description: `${!guildBanSuccessful ? ":warning: Failed to create guild ban.\n" : ""}${!dmSuccessful ? ":warning: Unable to send messages to this user.\n": ""}${user} banned indefinitely`,
                     footer: `Case number ${caseNumber} · ${dayjs().format("DD/MM/YYYY HH:mm")}`,
                     color: EmbedColor.Neutral
                 })]
-            };
+            });
         } else {
             const seconds = parseDuration(duration);
             const expiresAt = Math.trunc(Date.now() / 1000) + seconds;
@@ -171,15 +171,17 @@ const ban: InteractionCommand = {
             }).catch(() => {
                 guildBanSuccessful = false;
             });
-    
-            return {
+
+            await interaction.reply({
                 embeds: [client.simpleEmbed({
                     description: `${!guildBanSuccessful ? ":warning: Failed to create guild ban.\n" : ""}${!dmSuccessful ? ":warning: Unable to send messages to this user.\n": ""}${user} will be unbanned <t:${expiresAt}:R>`,
                     footer: `Case number ${caseNumber} · ${dayjs().format("DD/MM/YYYY HH:mm")}`,
                     color: EmbedColor.Neutral
                 })]
-            };
+            });
         }
+
+        return {};
     },
     help: {
         subcommands: [],

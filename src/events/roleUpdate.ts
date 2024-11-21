@@ -101,11 +101,11 @@ const roleUpdate: Event = {
                     let permsText = "";
 
                     for (const perm of enabled) {
-                        permsText += `<:allow:1208121658506874910> ${perm}\n`;
+                        permsText += `<:allow:1309211160104534120> ${perm}\n`;
                     }
 
                     for (const perm of disabled) {
-                        permsText += `<:deny:1208121656640282634> ${perm}\n`;
+                        permsText += `<:deny:1309211182397395007> ${perm}\n`;
                     }
 
                     embed = embed.addFields({ name: "Permissions", value: permsText });

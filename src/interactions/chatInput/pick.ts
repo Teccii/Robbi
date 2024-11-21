@@ -82,7 +82,7 @@ const pick: InteractionCommand = {
 
         await interaction.reply({
             embeds: [client.simpleEmbed({
-                title: `Picking <a:loading:1223950217930477638>`,
+                title: `Picking <a:loading:1309211245588643850>`,
                 color: EmbedColor.Neutral,
             }).setFields(
                 { name: "Option", value: names.join("\n"), inline: true },
