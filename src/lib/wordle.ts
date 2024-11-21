@@ -126,7 +126,6 @@ function getDescription(answer: string, guesses: string[]): string {
 
     //assume it's valid and 5 letters
     for (const guess of guesses) {
-        info("guess", guess);
         //fuck this tbh
         let emojis = ["", "", "", "", "", ""];
         let _answer = answer;
@@ -136,32 +135,23 @@ function getDescription(answer: string, guesses: string[]): string {
             if (guess[i] == _answer[i]) {
                 emojis[i] = greenChars[guess[i]];
                 _answer = replaceAt(_answer, i, "-");
-                info("answer left correct", _answer);
             }
         }
-
-        info("emojis", emojis.join(""))
 
         //mark the ones that are there but not in the correct position
         for (let i = 0; i < 5; i++) {
             if (_answer.includes(guess[i]) && emojis[i] == "") {
                 emojis[i] = yellowChars[guess[i]];
                 _answer = replaceAt(_answer, _answer.indexOf(guess[i]), "-");
-                info("answer left present", _answer);
             }
         }
-
-        info("emojis", emojis.join(""))
 
         //mark the ones that ain't there
         for (let i = 0; i < 5; i++){
             if (emojis[i] == "") {
                 emojis[i] = greyChars[guess[i]]
-                info("answer left absent", _answer);;
             }
         }
-
-        info("emojis", emojis.join(""))
 
         desc += `${emojis.join("")}\n`
     }
@@ -169,8 +159,8 @@ function getDescription(answer: string, guesses: string[]): string {
     const rowsLeft = 6 - guesses.length;
 
     for (let i = 0; i < rowsLeft; i++) {
-        desc += "<:Grey_Empty:1309229812698845194>".repeat(5);
+        desc += "<:Grey_Empty:1309229812698845194>\n".repeat(5);
     }
-    
+
     return desc;
 }
