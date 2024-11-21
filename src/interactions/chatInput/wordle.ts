@@ -37,7 +37,6 @@ const wordle: InteractionCommand = {
                 .setDescription("Guess a word.")
         )
         .setDMPermission(false)
-        .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
         .setName("wordle")
         .setDescription(description),
     exec: async (client, interaction) => {
