@@ -159,7 +159,7 @@ function getDescription(answer: string, guesses: string[]): string {
     const rowsLeft = 6 - guesses.length;
 
     for (let i = 0; i < rowsLeft; i++) {
-        desc += "<:Grey_Empty:1309229812698845194>\n".repeat(5);
+        desc += `${"<:Grey_Empty:1309229812698845194>".repeat(5)}\n`;
     }
 
     return desc;
