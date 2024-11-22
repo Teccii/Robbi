@@ -1,7 +1,6 @@
 import { EmbedBuilder } from "discord.js";
 import CustomClient from "./client";
 import { EmbedColor } from "./config";
-import { info } from "./log";
 
 const greenChars: {[key: string]: string} = {
     "a": "<:Green_A:1309204215620698203>",
@@ -97,32 +96,36 @@ function replaceAt(str: string, index: number, replaceWith: string): string {
 export function getWordleOngoingEmbed(client: CustomClient, user: string, answer: string, guesses: string[]): EmbedBuilder {
     return client.simpleEmbed({
         title: `${user}'s Wordle Game`,
-        description: getDescription(answer, guesses),
         footer: "Do /wordle guess to guess a word!",
         color: EmbedColor.Neutral,
-    });
+    }).setFields(getFields(user, answer, guesses));
 }
 
 export function getWordleLossEmbed(client: CustomClient, user: string, answer: string, guesses: string[]): EmbedBuilder {
+    const fields = getFields(user, answer, guesses);
+    fields[0].value += `\n You lost! The word was ${answer}`;
+
     return client.simpleEmbed({
         title: `${user}'s Wordle Game`,
-        description: `${getDescription(answer, guesses)}\nYou lost! The word was ${answer}`,
         footer: "Do /wordle start to start a new game!",
         color: EmbedColor.Error,
-    });
+    }).setFields(fields);
 }
 
-export function getWordleVictoryEmbed(client: CustomClient, user: string, answer: string, guesses: string[]): EmbedBuilder {
+export function getWordleVictoryEmbed(client: CustomClient, user: string, answer: string, guesses: string[]): EmbedBuilder {    
+    const fields = getFields(user, answer, guesses);
+    fields[0].value += `\n You won! The word was ${answer}`;
+    
     return client.simpleEmbed({
         title: `${user}'s Wordle Game`,
-        description: `${getDescription(answer, guesses)}\nYou won! The word was ${answer}`,
         footer: "Do /wordle start to start a new game!",
         color: EmbedColor.Success,
-    });
+    }).setFields(fields);
 }
 
-function getDescription(answer: string, guesses: string[]): string {
+function getFields(user: string, answer: string, guesses: string[]): { name: string, value: string }[] {
     let desc = "";
+    let letters: string[] = [];
 
     //assume it's valid and 5 letters
     for (const guess of guesses) {
@@ -143,6 +146,7 @@ function getDescription(answer: string, guesses: string[]): string {
             if (_answer.includes(guess[i]) && emojis[i] == "") {
                 emojis[i] = yellowChars[guess[i]];
                 _answer = replaceAt(_answer, _answer.indexOf(guess[i]), "-");
+                letters.push(guess[i]);
             }
         }
 
@@ -162,5 +166,8 @@ function getDescription(answer: string, guesses: string[]): string {
         desc += `${"<:Grey_Empty:1309229812698845194>".repeat(5)}\n`;
     }
 
-    return desc;
+    return [
+        { name: user, value: desc },
+        { name: "Excluded Letters", value: letters.join(" ") }
+    ];
 }
