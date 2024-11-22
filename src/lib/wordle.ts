@@ -95,7 +95,6 @@ function replaceAt(str: string, index: number, replaceWith: string): string {
 
 export function getWordleOngoingEmbed(client: CustomClient, user: string, answer: string, guesses: string[]): EmbedBuilder {
     return client.simpleEmbed({
-        title: `${user}'s Wordle Game`,
         footer: "Do /wordle guess to guess a word!",
         color: EmbedColor.Neutral,
     }).setFields(getFields(user, answer, guesses));
@@ -106,7 +105,6 @@ export function getWordleLossEmbed(client: CustomClient, user: string, answer: s
     fields[0].value += `\n You lost! The word was ${answer}`;
 
     return client.simpleEmbed({
-        title: `${user}'s Wordle Game`,
         footer: "Do /wordle start to start a new game!",
         color: EmbedColor.Error,
     }).setFields(fields);
@@ -117,7 +115,6 @@ export function getWordleVictoryEmbed(client: CustomClient, user: string, answer
     fields[0].value += `\n You won! The word was ${answer}`;
     
     return client.simpleEmbed({
-        title: `${user}'s Wordle Game`,
         footer: "Do /wordle start to start a new game!",
         color: EmbedColor.Success,
     }).setFields(fields);
@@ -169,7 +166,7 @@ function getFields(user: string, answer: string, guesses: string[]): { name: str
         desc += `${"<:Grey_Empty:1309229812698845194>".repeat(5)}\n`;
     }
 
-    const fields = [{ name: user, value: desc}];
+    const fields = [{ name: `${user}'s Wordle Game`, value: desc}];
 
     if (letters.length > 0) {
         fields.push({ name: "Excluded Letters", value: letters.join(" ")});
