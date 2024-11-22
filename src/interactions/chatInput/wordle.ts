@@ -84,19 +84,23 @@ const wordle: InteractionCommand = {
             if (await WordleModel.exists({ guildId, userId })) {
                 return { error: "You already have an ongoing Wordle game." };
             } else {
-                const endsAt = Math.trunc(Date.now() / 1000) + 30 * 60;
+                try {
+                    const endsAt = Math.trunc(Date.now() / 1000) + 30 * 60;
 
-                const wordle = await new WordleModel({
-                    guildId,
-                    userId,
-                    guesses: [],
-                    answer: _.sample(words),
-                    endsAt
-                }).save();
-
-                return {
-                    embeds: [getWordleOngoingEmbed(client, interaction.user.displayName, wordle.answer, wordle.guesses)]
-                };
+                    const wordle = await new WordleModel({
+                        guildId,
+                        userId,
+                        guesses: [],
+                        answer: _.sample(words),
+                        endsAt
+                    }).save();
+    
+                    return {
+                        embeds: [getWordleOngoingEmbed(client, interaction.user.displayName, wordle.answer, wordle.guesses)]
+                    };
+                } catch (e) {
+                    console.log(e);
+                }
             }
         } else if (subcmd == "stop") {
             const wordle = await WordleModel.findOneAndDelete({ guildId, userId });

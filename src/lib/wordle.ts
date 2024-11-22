@@ -125,7 +125,7 @@ export function getWordleVictoryEmbed(client: CustomClient, user: string, answer
 
 function getFields(user: string, answer: string, guesses: string[]): { name: string, value: string }[] {
     let desc = "";
-    let letters: string[] = [];
+    const letters: string[] = [];
 
     //assume it's valid and 5 letters
     for (const guess of guesses) {
@@ -146,14 +146,17 @@ function getFields(user: string, answer: string, guesses: string[]): { name: str
             if (_answer.includes(guess[i]) && emojis[i] == "") {
                 emojis[i] = yellowChars[guess[i]];
                 _answer = replaceAt(_answer, _answer.indexOf(guess[i]), "-");
-                letters.push(guess[i]);
             }
         }
 
         //mark the ones that ain't there
         for (let i = 0; i < 5; i++){
             if (emojis[i] == "") {
-                emojis[i] = greyChars[guess[i]]
+                emojis[i] = greyChars[guess[i]];
+                
+                if (!letters.includes(guess[i])) {
+                    letters.push(guess[i]);
+                }
             }
         }
 
@@ -166,8 +169,11 @@ function getFields(user: string, answer: string, guesses: string[]): { name: str
         desc += `${"<:Grey_Empty:1309229812698845194>".repeat(5)}\n`;
     }
 
-    return [
-        { name: user, value: desc },
-        { name: "Excluded Letters", value: letters.join(" ") }
-    ];
+    const fields = [{ name: user, value: desc}];
+
+    if (letters.length > 0) {
+        fields.push({ name: "Excluded Letters", value: letters.join(" ")});
+    }
+
+    return fields;
 }
