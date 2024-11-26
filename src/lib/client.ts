@@ -115,6 +115,18 @@ export default class CustomClient extends Client {
     )).index;
   }
 
+  async resetCounter(id: string) {
+    await CounterModel.findOneAndUpdate(
+      { _id: id },
+      { index: 0 },
+      { upsert: true, setDefaultsOnInsert: true }
+    )
+  }
+
+  async getCounter(id: string): Promise<number | undefined> {
+    return (await CounterModel.findOne({ _id: id }))?.index;
+  }
+
   async getCooldown(id: string): Promise<ICooldown | null> {
     return CooldownModel.findOne({ _id: id });
   }

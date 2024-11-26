@@ -93,41 +93,56 @@ function replaceAt(str: string, index: number, replaceWith: string): string {
     return str.substring(0, index) + replaceWith + str.substring(index + replaceWith.length);
 }
 
-export function getWordleOngoingEmbed(client: CustomClient, user: string, answer: string, guesses: string[]): EmbedBuilder {
+export function getWordleOngoingEmbed(client: CustomClient, username: string, answer: string, guesses: string[]): EmbedBuilder {
     return client.simpleEmbed({
         footer: "Do /wordle guess to guess a word!",
         color: EmbedColor.Neutral,
-    }).setFields(getFields(user, answer, guesses));
+    }).setFields(getFields(username, answer, guesses));
 }
 
-export function getWordleLossEmbed(client: CustomClient, user: string, answer: string, guesses: string[]): EmbedBuilder {
-    const fields = getFields(user, answer, guesses);
-    fields[0].value += `\n You lost! The word was ${answer}`;
+export async function getWordleCanceledEmbed(client: CustomClient, username: string, userId: string, answer: string, guesses: string[]): Promise<EmbedBuilder> {
+    const fields = getFields(username, answer, guesses);
+    fields[0].value += `\n Game canceled! The word was ${answer}`;
+
+    await client.resetCounter(`${userId}-wordle`);
 
     return client.simpleEmbed({
-        footer: "Do /wordle start to start a new game!",
+        footer: "Winstreak reset!",
+        color: EmbedColor.Neutral,
+    }).setFields(fields);
+}
+
+export async function getWordleLossEmbed(client: CustomClient, username: string, userId: string, answer: string, guesses: string[]): Promise<EmbedBuilder> {
+    const fields = getFields(username, answer, guesses);
+    fields[0].value += `\n You lost! The word was ${answer}`;
+
+    await client.resetCounter(`${userId}-wordle`);
+
+    return client.simpleEmbed({
+        footer: `Winstreak reset!`,
         color: EmbedColor.Error,
     }).setFields(fields);
 }
 
-export function getWordleVictoryEmbed(client: CustomClient, user: string, answer: string, guesses: string[]): EmbedBuilder {    
-    const fields = getFields(user, answer, guesses);
+
+export async function getWordleVictoryEmbed(client: CustomClient, username: string, userId: string, answer: string, guesses: string[]): Promise<EmbedBuilder> {    
+    const fields = getFields(username, answer, guesses);
     fields[0].value += `\n You won! The word was ${answer}`;
     
     return client.simpleEmbed({
-        footer: "Do /wordle start to start a new game!",
+        footer: `Winstreak: ${await client.nextCounter(`${userId}-wordle`)}`,
         color: EmbedColor.Success,
     }).setFields(fields);
 }
 
-function getFields(user: string, answer: string, guesses: string[]): { name: string, value: string }[] {
+function getFields(username: string, answer: string, guesses: string[]): { name: string, value: string }[] {
     let desc = "";
     const letters: string[] = [];
 
     //assume it's valid and 5 letters
     for (const guess of guesses) {
         //fuck this tbh
-        let emojis = ["", "", "", "", "", ""];
+        const emojis = ["", "", "", "", "", ""];
         let _answer = answer;
 
         //mark the correct ones and remove them from the answer
@@ -166,7 +181,7 @@ function getFields(user: string, answer: string, guesses: string[]): { name: str
         desc += `${"<:Grey_Empty:1309229812698845194>".repeat(5)}\n`;
     }
 
-    const fields = [{ name: `${user}'s Wordle Game`, value: desc}];
+    const fields = [{ name: `${username}'s Wordle Game`, value: desc}];
 
     if (letters.length > 0) {
         fields.push({ name: "Excluded Letters", value: letters.join(" ")});

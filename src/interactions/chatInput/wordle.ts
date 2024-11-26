@@ -2,6 +2,7 @@ import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 import { InteractionCommand } from "lib/command";
 import {
     getWordleOngoingEmbed,
+    getWordleCanceledEmbed,
     getWordleLossEmbed,
     getWordleVictoryEmbed
 } from "lib/wordle";
@@ -49,27 +50,29 @@ const wordle: InteractionCommand = {
         const userId = interaction.user.id;
 
         if (subcmd == "guess") {
-            const word = interaction.options.getString("word", true);
+            const word = interaction.options.getString("word", true).trim().toLowerCase();
 
             if (!words.includes(word)) {
                 return { error: `${word} is not a valid word to guess.`, ephemeral: true };
             }
 
+            const endsAt = Math.trunc(Date.now() / 1000) + 30 * 60;
+
             const wordle = await WordleModel.findOneAndUpdate(
                 { guildId, userId },
-                { $push: { guesses: word }},
+                { $push: { guesses: word }, endsAt },
                 { new: true }
             );
 
             if (wordle) {
                 if (word == wordle.answer) {
                     await interaction.reply({
-                        embeds: [getWordleVictoryEmbed(client, interaction.user.displayName, wordle.answer, wordle.guesses)]
+                        embeds: [await getWordleVictoryEmbed(client, interaction.user.displayName, interaction.user.id, wordle.answer, wordle.guesses)]
                     });
                     await wordle.deleteOne();
                 } else if (wordle.guesses.length >= 6) {
                     await interaction.reply({
-                        embeds: [getWordleLossEmbed(client, interaction.user.displayName, wordle.answer, wordle.guesses)]
+                        embeds: [await getWordleLossEmbed(client, interaction.user.displayName, interaction.user.id, wordle.answer, wordle.guesses)]
                     });
                     await wordle.deleteOne();
                 } else {
@@ -107,10 +110,8 @@ const wordle: InteractionCommand = {
 
             if (wordle) {
                 return {
-                    embeds: [client.simpleEmbed(
-                        { description: "Successfully stopped ongoing Wordle game." }
-                    )]
-                }
+                    embeds: [await getWordleCanceledEmbed(client, interaction.user.displayName, interaction.user.id, wordle.answer, wordle.guesses)]
+                };
             } else {
                 return { error: "You don't have an ongoing Wordle game." };
             }
